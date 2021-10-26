@@ -1,36 +1,10 @@
 ---
-output:
+title: "GGC_qtr_report.rmd"
+output: 
   flexdashboard::flex_dashboard:
-    theme:
-      version: 4
-      bg: "#101010"
-      fg: "#FDF7F7" 
-      primary: "#ED79F9"
-      navbar-bg: "#3ADAC6"
-      base_font: 
-        google: Prompt
-      heading_font:
-        google: Sen
-      code_font:
-        google: 
-          # arguments to sass::font_google() 
-          family: JetBrains Mono
-          local: false
+    orientation: rows
+    vertical_layout: fill
 ---
-
-
-# ---
-# title: "GGC_qtr_report.rmd"
-# output:
-#   flexdashboard::flex_dashboard:
-#     theme:
-#       version: 4
-#       bg: "#ECEBF3"
-#       fg: "#655E9D" 
-#       primary: "#80BCEA"
-#       navbar-bg: "#C1DD93"
-#     orientation: rows
-# ---
 
 
 
@@ -48,7 +22,9 @@ library(DT)
 data_dir <- "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/EASR/output/"
 data <- read_csv(paste0(data_dir, "Qtr_alc_adm_GGC.csv")) %>% 
   select(-lookup) %>% 
-  mutate(date_end = ymd(date_end))
+  mutate(date_end = ymd(date_end),
+         EASR=round(EASR, 2))
+  
 
 source("trend_table.R")
 ```
@@ -62,9 +38,9 @@ source("trend_table.R")
 ### Alcohol Related Hospital Attendances
 
 ```{r tab_1_gen, fig.height=0.5, fig.width = 2.5, include=FALSE}
-make_all_plots(data, "number")
-table_data_1 <- table_data(data, "number")
-table_1 <- make_table(table_data_1)
+make_all_plots(data, "number", trend_table_data)
+trend_table_data_1 <- trend_table_data(data, "number")
+table_1 <- make_trend_table(trend_table_data_1)
 ```
 
 ```{r tab_1_show}
@@ -74,17 +50,18 @@ table_1
 ### Attendances EASR
 
 ```{r tab_2_gen, fig.height=0.5, fig.width = 2.5, include=FALSE}
-make_all_plots(data, "EASR")
-table_data_2 <- table_data(data, "EASR")
-table_2 <- make_table(table_data_2)
+make_all_plots(data, "EASR", trend_table_data)
+trend_table_data_2 <- trend_table_data(data, "EASR")
+table_2 <- make_trend_table(trend_table_data_2)
 ```
 
 ```{r tab_2_show}
 table_2
 ```
 
+## row
 
-# EASR Trends in detail
+### EASR Trends in detail
 
 ```{r trends, show=FALSE}
 colours <- c("purple",
@@ -96,7 +73,7 @@ colours <- c("purple",
              "liberty",
              "rust")
 
-colours <- phs_colours(sprintf("phs-%s-50", colours))
+colours <- phs_colours(sprintf("phs-%s", colours))
 
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde")
 trend_data <- data %>%
@@ -105,13 +82,20 @@ trend_data <- data %>%
   rename(Area=area) %>% 
   pivot_wider(names_from = "Area", values_from = "EASR")
 
+min_y <- trend_data %>% select(-date_end) %>% min()
+max_y <- trend_data %>% select(-date_end) %>% max()
+y_lower <- min_y - 0.1*(max_y-min_y)
+y_upper <- max_y + 0.1*(max_y-min_y)
 
 area_names <- trend_data %>% names() %>% tail(-1)
 fig <- trend_data %>% 
-  plot_ly(type = 'scatter', mode = 'lines') %>% 
-  layout(title = 'Alcohol Related Hospital Attendances Trends',
-         xaxis = list(title = 'Year Ending'),
-         yaxis = list (title = 'Attendances'))
+  plot_ly(type = 'scatter', mode = 'lines',
+          line=list(width=3.5)) %>% 
+  layout(title = '',
+         xaxis = list(title = ''),
+         yaxis = list (title = 'Attendances EASR',
+                       range = c(y_lower, y_upper)),
+         hovermode = "x unified")
 
 
 for (i in seq_along(area_names)){
@@ -127,3 +111,33 @@ for (i in seq_along(area_names)){
 fig
 
 ```
+
+
+# Change Trends
+
+## row {.tabset}
+
+### Attendance Changes
+
+```{r tab_3_gen, fig.height=0.5, fig.width = 2.5, include=FALSE}
+make_all_plots(data, "number", relative_change_table_data)
+change_table_data_1 <- relative_change_table_data(data, "number")
+table_3 <- make_relative_change_table(change_table_data_1)
+```
+
+```{r tab_3_show}
+table_3
+```
+
+### EASR Changes
+
+```{r tab_4_gen, fig.height=0.5, fig.width = 2.5, include=FALSE}
+make_all_plots(data, "EASR", relative_change_table_data)
+change_table_data_2 <- relative_change_table_data(data, "EASR")
+table_4 <- make_relative_change_table(change_table_data_2)
+```
+
+```{r tab_4_show}
+table_4
+```
+
