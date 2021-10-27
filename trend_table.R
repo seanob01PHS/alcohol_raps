@@ -13,8 +13,7 @@ trend_table_data <- function(data, val_name){
     select(c("area", "date_end", val_name)) %>%
     pivot_wider(names_from = "date_end", values_from = val_name) %>%
     #put big areas at bottom
-    arrange(area %in% big_areas, area) %>%
-    rename(Area = area)
+    arrange(area %in% big_areas, area)
 }
 
 
@@ -32,8 +31,7 @@ relative_change_table_data <- function(data, val_name){
     mutate_if(is.numeric, change_percentage, .[[2]]) %>%
     mutate_if(is.numeric, round, 2) %>% 
     #put big areas at bottom
-    arrange(area %in% big_areas, area) %>%
-    rename(Area = area)
+    arrange(area %in% big_areas, area)
 }
 
 change_percentage <- function(col, init_col){

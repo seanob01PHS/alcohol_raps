@@ -14,10 +14,11 @@ knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(knitr)
 library(lubridate)
-library(kableExtra)
+library(reactable)
+library(sparkline)
 library(phsstyles)
 library(plotly)
-library(DT)
+
 
 data_dir <- "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/EASR/output/"
 data <- read_csv(paste0(data_dir, "Qtr_alc_adm_GGC.csv")) %>% 
@@ -36,28 +37,34 @@ source("trend_table.R")
 ## row {.tabset}
 
 ### Alcohol Related Hospital Attendances
-
-```{r tab_1_gen, fig.height=0.5, fig.width = 2.5, include=FALSE}
-make_all_plots(data, "number", trend_table_data)
+```{r reactable_1}
 trend_table_data_1 <- trend_table_data(data, "number")
-table_1 <- make_trend_table(trend_table_data_1)
+
+trend_table_data_1_t <- trend_table_data_1 %>%
+  pivot_longer(-area, names_to = "year_ending") %>% 
+  pivot_wider(names_from = area, values_from = value)
+
+year_end_group <- names(trend_table_data_1) %>% tail(-1)
+
+trend_table_data_1 <- trend_table_data_1 %>% 
+  mutate(sparkline=NA)
+
+reactable(trend_table_data_1, columns = list(
+  area = colDef(sticky="left", name = "Area", width = 200),
+  sparkline = colDef(name = "Trend Lines",
+                     sticky = "right",
+                     cell = function(value, index) {
+    sparkline(trend_table_data_1_t[[trend_table_data_1[[index,1]]]])
+  })
+  ),
+  columnGroups = list(
+    colGroup(name="Year Ending", columns=year_end_group)
+  )
+  )
+
 ```
 
-```{r tab_1_show}
-table_1
-```
 
-### Attendances EASR
-
-```{r tab_2_gen, fig.height=0.5, fig.width = 2.5, include=FALSE}
-make_all_plots(data, "EASR", trend_table_data)
-trend_table_data_2 <- trend_table_data(data, "EASR")
-table_2 <- make_trend_table(trend_table_data_2)
-```
-
-```{r tab_2_show}
-table_2
-```
 
 ## row
 
@@ -93,7 +100,7 @@ fig <- trend_data %>%
           line=list(width=3.5)) %>% 
   layout(title = '',
          xaxis = list(title = ''),
-         yaxis = list (title = 'Attendances EASR',
+         yaxis = list (title = 'EASR (per 100,000)',
                        range = c(y_lower, y_upper)),
          hovermode = "x unified")
 
@@ -118,26 +125,4 @@ fig
 ## row {.tabset}
 
 ### Attendance Changes
-
-```{r tab_3_gen, fig.height=0.5, fig.width = 2.5, include=FALSE}
-make_all_plots(data, "number", relative_change_table_data)
-change_table_data_1 <- relative_change_table_data(data, "number")
-table_3 <- make_relative_change_table(change_table_data_1)
-```
-
-```{r tab_3_show}
-table_3
-```
-
-### EASR Changes
-
-```{r tab_4_gen, fig.height=0.5, fig.width = 2.5, include=FALSE}
-make_all_plots(data, "EASR", relative_change_table_data)
-change_table_data_2 <- relative_change_table_data(data, "EASR")
-table_4 <- make_relative_change_table(change_table_data_2)
-```
-
-```{r tab_4_show}
-table_4
-```
 
