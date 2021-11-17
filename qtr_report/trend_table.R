@@ -15,11 +15,14 @@ trend_table_data <- function(data, val_name){
 # Makes a relative change (percentage of first column) table from data
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 relative_change_table_data <- function(data, val_name){
-  data %>%
+  data_f <- data %>%
     format_and_pivot(val_name) %>% 
     # everything as percentage of first date (column 2)
     mutate_if(is.numeric, change_percentage, .[[2]]) %>%
     mutate_if(is.numeric, round, 2)
+  data_f[2] <- NA
+  
+  data_f
 }
 
 
@@ -38,14 +41,14 @@ year_on_year_change <- function(data, val_name){
     }
   }
   data_f <- data_f %>% mutate_if(is.numeric, round, 3)
-  data_f[2] <- 0  
+  data_f[2] <- NA  
   data_f
 }
 
 
 
 format_and_pivot <- function(data, val_name){
-  big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde")
+  big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
   data %>%
     #convert date time to string based on template
     mutate(date_end = format(date_end, format="%d-%b-%y")) %>%

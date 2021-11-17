@@ -1,0 +1,73 @@
+---
+title: "GGC_qtr_report.rmd"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(openxlsx)
+library(tidyverse)
+library(knitr)
+library(reactable)
+library(sparklines)
+library(phsstyles)
+library(plotly)
+library(stringr)
+library(crosstalk)
+
+source("process_wrangle.R")
+source("table_output_profile.R")
+
+data_dir <- "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/output/"
+data <-  read.xlsx(paste0(data_dir, "GGC Alcohol Data.xlsx"), 1) %>% 
+  select(-lookup)
+
+#The year column is strings of different meanings and formats
+#2018-2020 (3 year aggregate)
+#2018/19 (single fin year)
+#2018/19 to 2020/21 (3 fin year aggregates)
+#
+#This function takes the start year and gives a column
+#that shows year type
+data <- data %>% process_year()
+#selecting the rows in the right order
+data <- data[c("iz", "iz_name", "year_start", "year_type", "year_str", "hscp", "indicator", "pop", "number", "rate")]
+
+
+big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
+```
+
+# Landing Page
+
+# Profile
+
+Inputs {.sidebar}
+-------------------------------------
+```{r crosstalk_filter}
+table_data <- make_profile_frame(data) %>% mutate(compared_to = case_when(compared_to=="Scotland" ~ 0L,
+                                                                          compared_to=="NHS GGC" ~ 1L,
+                                                                          TRUE~NA_integer_))
+shared_table_data <- SharedData$new(table_data)
+filter_select("comp", "Comp", multiple=FALSE, shared_table_data, ~ifelse(compared_to == 0, "Scogtland", "NHS GGC"))
+
+```
+
+
+## row
+
+### Profile
+
+```{r reactable_1}
+
+profile_table(table_data, shared_table_data)
+
+```
+
+
+```

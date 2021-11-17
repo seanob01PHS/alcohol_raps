@@ -4,7 +4,9 @@
 # returns a reactable table with the data and a 
 # sparkline for each row
 #--------------------------------------------------------
-table_with_sparklines <- function(table_data, p_m_colouring = FALSE){
+table_with_sparklines <- function(table_data, p_m_colouring = FALSE, sparkline_type="line"){
+  big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
+  
   table_data_t <- table_data %>%
     pivot_longer(-area, names_to = "year_ending") %>% 
     pivot_wider(names_from = area, values_from = value)
@@ -19,12 +21,26 @@ table_with_sparklines <- function(table_data, p_m_colouring = FALSE){
   
   #inital columns that we don't need to iterate over
   col_defs <- list(
-    area = colDef(sticky="left", name = "Area", width = 200),
+    area = colDef(sticky="left", name = "Area", width = 200, 
+                  style = function(value) {
+                    if (value %in% big_areas) {
+                      font <- "bold"
+                      background <- "#e6f2fb"
+                    } else {
+                      font <- "regular"
+                      background <- "#ffffff"
+                    }
+                    list(background = background, fontWeight = font)
+                  }),
     
-    sparkline = colDef(name = "Trend Lines",
+    sparkline = colDef(name = "Trend",
                        sticky = "right",
+                       align = "center",
                        cell = function(value, index) {
-                         sparkline(table_data_t[[table_data[[index,1]]]])
+                         sparkline(table_data_t[[table_data[[index,1]]]], sparkline_type, list(barColor="#d26146", 
+                                                                                               negBarColor="#9cc951",
+                                                                                               width = "10em",
+                                                                                               barWidth = "6em"))
                        })
                         )
   
@@ -36,11 +52,13 @@ table_with_sparklines <- function(table_data, p_m_colouring = FALSE){
   }
   
   
-  reactable(table_data, columns = col_defs,
-  columnGroups = list(
-    colGroup(name="Year Ending", columns=year_end_group)
-    )
-  )
+  reactable(table_data,
+            columns = col_defs,
+            compact = TRUE,
+            columnGroups = list(
+              colGroup(name="Year Ending", columns=year_end_group)
+              )
+            )
 }
 
 
@@ -68,11 +86,14 @@ make_p_m_color_pal <- function(plus_neg_zero_colours, bias = 1) {
 p_m_colours <- make_p_m_color_pal(c("#d26146", "#9cc951", "#ffffff"), bias=1.5)
 
 make_year_end_column <- function(abs_max_vals){
-  colDef(style = function(value){
+  colDef(
+    align = "right",
+    cell = format_pct,
+    style = function(value){
     pos_max <- abs_max_vals[[1]]
     neg_max <- abs_max_vals[[2]]
     
-    if (value==0){
+    if (value==0 | is.na(value)){
       scaled <- 0
     } else if (value > 0){
       scaled <- value/pos_max
@@ -81,8 +102,7 @@ make_year_end_column <- function(abs_max_vals){
     }
     
     list(color = "#111", background = p_m_colours(scaled))
-  },
-  format = colFormat(percent = TRUE))
+  })
 }
 
 #bit of a bodge. Doesn't handle stupid cases very well
@@ -90,4 +110,9 @@ get_abs_p_m_max <- function(table){
   neg_max <- table %>% select_if(is.numeric) %>% min() %>% abs()
   pos_max <- table %>% select_if(is.numeric) %>% max() %>% abs()
   c(pos_max, neg_max)
+}
+
+format_pct <- function(value) {
+  if (is.na(value)) "  \u2013  "    # en dash for NAs
+  else formatC(paste0(round(value * 100), "%"), width = 6)
 }
