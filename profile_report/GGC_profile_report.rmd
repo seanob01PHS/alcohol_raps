@@ -4,6 +4,7 @@ output:
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: fill
+    css: www/css_styles.css
 ---
 
 
@@ -37,7 +38,7 @@ data <-  read.xlsx(paste0(data_dir, "GGC Alcohol Data.xlsx"), 1) %>%
 #that shows year type
 data <- data %>% process_year()
 #selecting the rows in the right order
-data <- data[c("iz", "iz_name", "year_start", "year_type", "year_str", "hscp", "indicator", "pop", "number", "rate")]
+data <- data[c("iz", "iz_name", "year_start", "year_str", "hscp", "indicator", "pop", "number", "rate")]
 
 
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
@@ -50,11 +51,8 @@ big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
 Inputs {.sidebar}
 -------------------------------------
 ```{r crosstalk_filter}
-table_data <- make_profile_frame(data) %>% mutate(compared_to = case_when(compared_to=="Scotland" ~ 0L,
-                                                                          compared_to=="NHS GGC" ~ 1L,
-                                                                          TRUE~NA_integer_))
-shared_table_data <- SharedData$new(table_data)
-filter_select("comp", "Comp", multiple=FALSE, shared_table_data, ~ifelse(compared_to == 0, "Scogtland", "NHS GGC"))
+all_table_data <- make_profile_frame(data)
+table_data <- all_table_data %>% select(-contains("diff vs||"))
 
 ```
 
@@ -65,7 +63,7 @@ filter_select("comp", "Comp", multiple=FALSE, shared_table_data, ~ifelse(compare
 
 ```{r reactable_1}
 
-profile_table(table_data, shared_table_data)
+profile_table(table_data, all_table_data)
 
 ```
 
