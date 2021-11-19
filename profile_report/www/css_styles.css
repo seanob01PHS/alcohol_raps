@@ -17,6 +17,7 @@
 
 .details_head {
   font-size: 11px;
+  height: 35px;
   margin: auto;
 }
 
@@ -26,8 +27,40 @@
 }
 
 .details_col {
-  border-radius: 50%;
-  color: #000;
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 15px;
   font-size: 13px;
-  letter-spacing: -2px;
+  width: 90px;
+}
+
+.details_diff_vs_col{
+  font-size: 13px;
+  border-right: 1.5px solid #999;
+}
+
+
+.details_table{
+  padding: 16px;
+  padding-bottom: 14px;
+  width: 700px;
+}
+
+.details_table h1{
+  border-top: 1px dashed #555;
+  border-top-width: 80%;
+  padding: 5px;
+  padding-top: 25px;
+  font-size: 18px;
+}
+
+.details_pop{
+  padding-left: 24px;
+  padding-bottom: -65px;  
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.details_pop h2{
+  font-size: 19px;
 }

@@ -1,6 +1,9 @@
 library(htmltools)
 
-profile_table <- function(table_data, all_data){
+profile_table <- function(all_data, populations, population_year=9999){
+  table_data <- all_data %>% select(-contains("diff vs||"))
+  
+  
   big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
   
   
@@ -41,7 +44,7 @@ profile_table <- function(table_data, all_data){
             columnGroups = my_col_groups,
             details =   colDef(
               show=TRUE,
-              details = details_generator(all_data)
+              details = details_generator(all_data, populations, population_year)
             )
   )
 }
@@ -112,7 +115,15 @@ get_abs_p_m_max <- function(table){
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 format_pct <- function(value) {
   if (is.na(value)) "  \u2013  "    # en dash for NAs
-  else formatC(paste0(round(value * 100), "%"), width = 6)
+  else {
+    sign_numeric <- sign(value)
+    sign_str <- case_when(sign_numeric==-1~"-",
+                          sign_numeric==+1~"+",
+                          TRUE~"")
+    
+    paste0(sign_str,
+           formatC(paste0(round(abs(value) * 100), "%"), width = 6))
+  }
 }
 
 
@@ -133,7 +144,7 @@ comparison_style_generator <- function(abs_max_vals){
       scaled <- value/neg_max
     }
     
-    list(color = "#111", background = p_m_colours(scaled), fontSize="8pt")
+    list(color = "#111", background = p_m_colours(scaled), fontSize="9pt")
   }
 }
 
@@ -155,19 +166,19 @@ default_cols <- function(){
                     font <- "regular"
                     background <- "#ffffff"
                   }
-                  list(background = background, fontWeight = font, fontSize="8pt")
+                  list(background = background, fontWeight = font, fontSize="9pt")
                 },
-                headerStyle = list(fontSize="9pt")),
+                headerStyle = list(fontSize="10pt")),
     iz_name = colDef(sticky="left", name = "Intermediate Zone Name", width=220,
                      filterable = TRUE,
                      show = TRUE,
-                     style=list(fontSize="8pt"),
+                     style=list(fontSize="9pt"),
                      headerStyle = list(fontSize="9pt")),
     
     hscp = colDef(sticky="left", name = "HSCP", width=125,
                   filterable = TRUE,
                   show = TRUE,
-                  style=list(fontSize="8pt"),
+                  style=list(fontSize="9pt"),
                   headerStyle = list(fontSize="9pt"))
   )
 }
@@ -204,48 +215,71 @@ p_m_colours <- make_p_m_color_pal(c("#d26146", "#9cc951", "#ffffff"), bias=1.5)
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Returns a list of details for each row
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-details_generator <- function(data){
+details_generator <- function(data, populations, population_year){
+  
+  
   details_data <- data %>% select(contains("diff vs||"))
-  details_col_defs <- list()
-  abs_max_col_vals <- list()
+  details_df_list <- split(details_data, seq(nrow(details_data)))
   
-  
-  for (col_x in details_data %>% names %>% sort){
-    
-    if (grepl("(Scotland)", col_x)){
-      rel_to <- "Scotland"
-      #print("yoyo")
-    } else if (grepl("(NHS GGC)", col_x)){
-      rel_to <- "NHS GGC"
-    } else {
-      rel_to <- "ERROR"
-    }
-    
-    header_f <-  function(header_val, col_name){
-      div(class = "details_head",
-          header_val,
-          div(class = "details_subhead",
-              rel_to)
-      )}
-    
-    
-    details_col_defs[[col_x]] <- colDef(show = TRUE,
-                                        name = paste(indicator_from_diff_col(col_x), "difference"),
-                                        format = colFormat(digits=2),
-                                        html = TRUE,
-                                        cell = details_format_generator(get_abs_p_m_max(details_data[col_x])),
-                                        header = header_f
-                                        )
-    
+  details_pivoter <- function(x){
+    x %>% 
+      pivot_longer(everything()) %>% 
+      mutate(`Difference rel to` = name %>% str_match_all("[^\\|]+") %>% map_chr(2),
+             indicator= name %>% str_match_all("[^\\|]+") %>% map_chr(3)) %>%
+      select(-name) %>% 
+      pivot_wider(names_from = "indicator") %>% 
+      rename_with(str_trim, everything())
   }
   
   
+  details_df_list <- lapply(details_df_list, details_pivoter)
+  
+  #now just for the abs_maxs
+  details_pivoted_full <- do.call(rbind, details_df_list)
+  
+  
+  diff_col_name <- details_df_list[[1]] %>% 
+    names()
+  diff_col_name <- diff_col_name[[which(str_contains(diff_col_name, "iff"))]]
+  
+  details_col_defs <- list()
+  details_col_defs[[diff_col_name]] <- colDef(show=TRUE,
+                                              html = TRUE,
+                                              class = "details_diff_vs_col",
+                                              width = 100,
+                                              headerClass = "details_head")
+  
+  
+  non_diff_col_names <- names(details_df_list[[1]])[-which(details_df_list[[1]] %>% names == diff_col_name)]
+  
+  for (col in non_diff_col_names){
+    #THIS IS IMPORTANT
+    # the environment of the variable decalred in a for loop
+    # was not as local as I expected.
+    # This was causing weird and annoying bugs
+    my_col <- col
+    details_col_defs[[my_col]] <- colDef(show = TRUE,
+                                      format = colFormat(digits=2),
+                                      html = TRUE,
+                                      cell = details_format_generator(get_abs_p_m_max(details_pivoted_full[my_col])),
+                                      headerClass = "details_head")
+  }
+  
+  
+  
   function(index){
-    htmltools::div(style = "padding: 16px",
-                   reactable(details_data[index, ],
-                             columns = details_col_defs
+    div(
+      div(class = "details_pop",
+          h2(paste(population_year, "Population")),
+          format(round(populations[index, "pop"][[1]]), big.mark=",")),
+      div(class = "details_table",
+                   h1("Difference in rates compared to Scotland and NHS GGC"),
+                   reactable(details_df_list[[index]],
+                             columns = details_col_defs,
+                             outlined = TRUE
                              )
-    )
+          )
+      )
   }
 }
 
@@ -262,14 +296,15 @@ indicator_from_diff_col <- function(col_name){
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Nice formatting for details
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-details_format_generator <- function(abs_max_vals){
+details_format_generator <- function(abs_max_vals_i){
+  pos_max <- abs_max_vals_i[[1]]
+  neg_max <- abs_max_vals_i[[2]]
   function(value, row_index, col_name){
-    pos_max <- abs_max_vals[[1]]
-    neg_max <- abs_max_vals[[2]]
-    
-    
-    pos_max <- 10
-    neg_max <- 1
+    # print("===========")
+    # print(col_name)
+    # print(value)
+    # print(pos_max)
+    # print(neg_max)
     
     if (value==0 | is.na(value)){
       scaled <- 0
@@ -279,15 +314,9 @@ details_format_generator <- function(abs_max_vals){
       scaled <- value/neg_max
     }
     
-    
-    # print("===========")
-    # print(col_name)
-    # print(value)
-    # print(pos_max)
-    # print(neg_max)
     # print(scaled)
-    # 
-    display_val <- format_pct(value)
-    div(class = "details_col", style = list(background = p_m_colours(scaled)), display_val)
+
+    out_str <- format_pct(value)
+    div(class = "details_col", style = list(background = p_m_colours(scaled)), out_str)
   }
 }

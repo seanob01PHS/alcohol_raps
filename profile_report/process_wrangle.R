@@ -174,4 +174,20 @@ make_profile_frame <- function(data){
 }
 
 
+get_pops <- function(table_data, data, population_year){
+  pops <- data %>%
+    filter(year_start==population_year) %>% 
+    select(iz, pop) %>% 
+    group_by(iz) %>% 
+    summarise(pop=first(pop)) %>% 
+    ungroup()
+  
+  table_data %>%
+    select(iz) %>% 
+    left_join(pops, by="iz")
+
+}
+
+
+
 
