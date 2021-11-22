@@ -24,13 +24,18 @@ profile_table <- function(all_data, populations, population_year=9999){
     roc_col <- col_names[[which(grepl(paste0("^(roc\\|\\|",
                                              indicator, ")"),
                                       col_names))]]
+    year_str <- col_names[[which(grepl(paste0("^(val\\|\\|",
+                                              indicator, ")"),
+                                       col_names))]] %>% 
+      str_match_all("[^\\|]+") %>% map_chr(3)
     
     my_col_defs[[val_col]] <- make_val_column(table_data[val_col])
     my_col_defs[[roc_col]] <- make_roc_column(table_data[roc_col])
     
     
     my_col_groups[[length(my_col_groups)+1]] <- 
-      colGroup(name = indicator, columns = c(val_col, roc_col))
+      colGroup(name = paste(indicator, year_str, sep = "||"), columns = c(val_col, roc_col),
+               header=col_group_header)
   }
 
   
@@ -68,9 +73,9 @@ make_val_column <- function(col_data){
     header = function(header_val, col_name){
       div(class = "val_and_roc_head",
           header_val,
-          div(class = "val_and_roc_subhead",
-              "EASR")
-          )}
+          div(class="val_and_roc_subhead",
+              "EASR"))
+      }
   )
 }
 
@@ -79,24 +84,66 @@ make_val_column <- function(col_data){
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 make_roc_column <- function(col_data){
   abs_max_vals <- get_abs_p_m_max(col_data)
+  
+  arrows_and_colours <- list(
+    up=list(shiny::icon("arrow-up"), "#B8100D"),
+    down=list(shiny::icon("arrow-down"), "#71B109"),
+    zero=list(shiny::icon("grip-lines"), "#F4E61F"))
+  
+  roc_column_cell <- function(value){
+    show_str <- format_pct(value)
+    if (is.na(value) || value==0){
+      icon_and_colour <- arrows_and_colours[["zero"]]
+    } else if (value < 0){
+      icon_and_colour <- arrows_and_colours[["down"]]
+    } else {
+      icon_and_colour <- arrows_and_colours[["up"]]
+    }
+    
+    icon <-tagAppendAttributes(icon_and_colour[[1]],
+                               style = paste("color:", icon_and_colour[[2]]))
+    div(class="roc_col_left",
+        role = "img",
+        icon,
+        div(class="roc_col",
+            show_str))
+  }
+  
   colDef(
     show = TRUE,
     name = "Rate of Change",
     headerStyle = list(fontSize="9pt"),
     format=colFormat(digits=2),
     align = "right",
-    cell = format_pct,
+    cell = roc_column_cell,
     style = comparison_style_generator(abs_max_vals),
     html = TRUE,
     header = function(header_val, col_name){
       div(class = "val_and_roc_head",
           header_val,
-          div(class = "val_and_roc_subhead",
-              "rel. prev. period")
-      )}
+          div(class="val_and_roc_subhead",
+              "rel. prev. period"))
+      }
   )
 }
 
+
+
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# Custom header generator for column group headings
+# The year string is small and in grey
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+col_group_header <- function(header_name){
+  parts <- header_name %>% str_match_all("[^\\|]+") %>% .[[1]]
+  indicator <- parts[[1]]
+  year_str <- parts[[2]]
+  
+  div(class="col_group_head",
+      indicator,
+      div(class="col_group_subhead",
+          year_str))
+  
+}
 
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # To get the absolute value of the extremes of a data set
@@ -168,7 +215,7 @@ default_cols <- function(){
                   }
                   list(background = background, fontWeight = font, fontSize="9pt")
                 },
-                headerStyle = list(fontSize="10pt")),
+                headerStyle = list(fontSize="9pt")),
     iz_name = colDef(sticky="left", name = "Intermediate Zone Name", width=220,
                      filterable = TRUE,
                      show = TRUE,
@@ -273,7 +320,7 @@ details_generator <- function(data, populations, population_year){
           h2(paste(population_year, "Population")),
           format(round(populations[index, "pop"][[1]]), big.mark=",")),
       div(class = "details_table",
-                   h1("Difference in rates compared to Scotland and NHS GGC"),
+                   h1("Relative difference in rates compared to Scotland and NHS GGC"),
                    reactable(details_df_list[[index]],
                              columns = details_col_defs,
                              outlined = TRUE

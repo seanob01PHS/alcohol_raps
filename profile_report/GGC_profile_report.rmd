@@ -1,5 +1,5 @@
 ---
-title: "GGC_qtr_report.rmd"
+title: "GGC_profile_report"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
@@ -22,7 +22,9 @@ library(plotly)
 library(stringr)
 library(crosstalk)
 library(sjmisc)
+```
 
+```{r init, include=FALSE}
 source("process_wrangle.R")
 source("table_output_profile.R")
 
@@ -45,12 +47,14 @@ population_year <- data %>%
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
 ```
 
-# Landing Page
 
 # Profile
 
 Inputs {.sidebar}
 -------------------------------------
+
+
+
 ```{r crosstalk_filter}
 all_table_data <- make_profile_frame(data) %>% arrange(desc(across(contains("hospital admissions"))))
 table_data <- all_table_data %>% select(-contains("diff vs||"))
