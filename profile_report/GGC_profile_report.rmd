@@ -37,13 +37,6 @@ data <- data %>% process_year()
 #selecting the rows in the right order
 data <- data[c("iz", "iz_name", "year_start", "year_str", "hscp", "indicator", "pop", "number", "rate")]
 
-
-#gets largest year_start in data
-population_year <- data %>%
-  arrange(desc(year_start)) %>% 
-  pull(year_start) %>% 
-  .[[1]]
-
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
 ```
 
@@ -57,7 +50,6 @@ Inputs {.sidebar}
 
 ```{r crosstalk_filter}
 all_table_data <- make_profile_frame(data) %>% arrange(desc(across(contains("hospital admissions"))))
-table_data <- all_table_data %>% select(-contains("diff vs||"))
 
 ```
 
@@ -67,8 +59,7 @@ table_data <- all_table_data %>% select(-contains("diff vs||"))
 ### Profile
 
 ```{r reactable_1}
-populations <- get_pops(table_data, data, population_year)
-profile_table(all_table_data, populations, population_year)
+profile_table(all_table_data)
 
 ```
 

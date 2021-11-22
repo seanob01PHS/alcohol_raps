@@ -1,7 +1,17 @@
 library(htmltools)
 
-profile_table <- function(all_data, populations, population_year=9999){
-  table_data <- all_data %>% select(-contains("diff vs||"))
+profile_table <- function(all_data){
+  
+  populations <- all_data %>%
+    select(contains("pop"), iz) %>% 
+    rename_with(function(x) "pop", contains("pop"))
+  
+  population_year <- Filter(function(x) grepl("(pop)", x), names(all_data)) %>% 
+    str_match_all("[^\\|]+") %>% 
+    .[[1]] %>% .[[2]] %>% 
+    as.numeric()
+  
+  table_data <- all_data %>% select(-contains("diff vs||"), -contains("pop"))
   
   
   big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")

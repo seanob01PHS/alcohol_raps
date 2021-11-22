@@ -1,4 +1,21 @@
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# Gets and returns a dt with iz and population
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+get_pops <- function(table_data, data, population_year){
+  pops <- data %>%
+    filter(year_start==population_year) %>% 
+    select(iz, pop) %>% 
+    group_by(iz) %>% 
+    summarise(pop=first(pop)) %>% 
+    ungroup()
+  
+  table_data %>%
+    select(iz) %>% 
+    left_join(pops, by="iz")
+  
+}
+
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Just a little wrapper really
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 process_year <- function(data){
@@ -9,7 +26,6 @@ process_year <- function(data){
 }
 
 
-
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Gives the most up to date `year_start` for a given
 # indicator 
@@ -17,7 +33,6 @@ process_year <- function(data){
 most_up_to_date_date <- function(data, indicator_f){
   data %>% filter(indicator==indicator_f) %>% pull(year_start) %>% max()
 }
-
 
 
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
@@ -168,26 +183,30 @@ make_profile_frame <- function(data){
     data_piv[[new_var_name_ggc]] <- zero_safe_rate_of_change(data_piv[[curr_col]], ggc_figs[[indicator]])
     
   }
-
   
-  data_piv %>% select(-all_of(unlist(old_cols)))
+  
+  #gets largest year_start in data
+  population_year <- data %>%
+    arrange(desc(year_start)) %>% 
+    pull(year_start) %>% 
+    .[[1]]
+  
+  populations <- get_pops(data_piv, data, population_year)
+  
+  data_piv %>% 
+    select(-all_of(unlist(old_cols))) %>% 
+    left_join(populations, by="iz") %>% 
+    rename(!!paste0("pop||", as.character(population_year)) := pop)
 }
 
 
-get_pops <- function(table_data, data, population_year){
-  pops <- data %>%
-    filter(year_start==population_year) %>% 
-    select(iz, pop) %>% 
-    group_by(iz) %>% 
-    summarise(pop=first(pop)) %>% 
-    ungroup()
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# does some formatting and column renaming to make a nice to download table
+# containg all info but very little formatting
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+table_for_download <- function(data){
   
-  table_data %>%
-    select(iz) %>% 
-    left_join(pops, by="iz")
-
 }
-
 
 
 
