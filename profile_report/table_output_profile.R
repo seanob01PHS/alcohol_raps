@@ -1,6 +1,6 @@
 library(htmltools)
 
-profile_table <- function(all_data){
+profile_table <- function(all_data, shared_table){
   
   populations <- all_data %>%
     select(contains("pop"), iz) %>% 
@@ -50,7 +50,9 @@ profile_table <- function(all_data){
 
   
    
-  reactable(table_data,
+  reactable(shared_table,
+            selection = "multiple",
+            onClick = "select",
             columns = my_col_defs,
             defaultColDef = colDef(show = FALSE),
             searchable = TRUE,
@@ -59,8 +61,7 @@ profile_table <- function(all_data){
             columnGroups = my_col_groups,
             details =   colDef(
               show=TRUE,
-              details = details_generator(all_data, populations, population_year)
-            )
+              details = details_generator(all_data, populations, population_year))
   )
 }
 
@@ -236,7 +237,9 @@ default_cols <- function(){
                   filterable = TRUE,
                   show = TRUE,
                   style=list(fontSize="9pt"),
-                  headerStyle = list(fontSize="9pt"))
+                  headerStyle = list(fontSize="9pt")),
+    
+    .selection = colDef(show=TRUE)
   )
 }
 

@@ -21,6 +21,7 @@ library(phsstyles)
 library(plotly)
 library(stringr)
 library(crosstalk)
+library(DT)
 library(sjmisc)
 ```
 
@@ -47,6 +48,12 @@ Inputs {.sidebar}
 -------------------------------------
 
 
+- This table shows information on various alcohol related harms indicators
+- The EASR value and rate of change of the EASR from the previous period are shown for
+  (@) **Alcohol Specific Deaths:** the time periods for this indicator are 3 calendar year aggregates.
+  (@) **Alcohol-related mental health admissions:** the time periods for this indicator are 3 financial year aggregates.
+  (@) **Alcohol-related hospital admissions:** the time periods for this indicator are single financial years.
+
 
 ```{r crosstalk_filter}
 all_table_data <- make_profile_frame(data) %>% arrange(desc(across(contains("hospital admissions"))))
@@ -54,14 +61,29 @@ all_table_data <- make_profile_frame(data) %>% arrange(desc(across(contains("hos
 ```
 
 
-## row
+## row {.tabset}
 
-### Profile
+### Profile Display
 
-```{r reactable_1}
-profile_table(all_table_data)
+```{r reactable_display_profile}
+download_table <- table_for_download(all_table_data)
+
+shared_table_main <- SharedData$new(all_table_data, group="profile_table", key = ~iz)
+shared_table_download <- SharedData$new(download_table, group="profile_table", key = ~iz)
+
+profile_table(all_table_data, shared_table_main)
 
 ```
 
+### Profile Download
+
+```{r dt_download_profile}
+datatable(shared_table_download,
+          height=0.5,
+          rownames = FALSE,
+          extensions = 'Buttons',
+          class = "diaply",
+          options=list(dom = 'Bfrtip',
+                        buttons = c('copy', 'csv', 'excel')))
 
 ```

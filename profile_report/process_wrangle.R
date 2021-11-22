@@ -205,8 +205,51 @@ make_profile_frame <- function(data){
 # containg all info but very little formatting
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 table_for_download <- function(data){
+  rescramble_diff_col <- function(diff_col_name){
+    bits <- diff_col_name %>% 
+      str_match_all("[^\\|]+")
+    
+    indicator <- bits%>% map_chr(3)
+    diff_vs <- bits%>% map_chr(2)
+    
+    paste(indicator, "difference vs.", diff_vs)
+  }
+  rescramble_val_col <- function(val_col_name){
+    bits <- val_col_name %>% 
+      str_match_all("[^\\|]+")
+    
+    indicator <- bits %>% map_chr(2)
+    year_str <- bits %>% map_chr(3)
+    
+    paste(indicator, "value at", year_str)
+  }
+  rescramble_roc_col <- function(roc_col_name){
+    bits <- roc_col_name %>% 
+      str_match_all("[^\\|]+")
+    
+    indicator <- bits%>% map_chr(2)
+    
+    paste(indicator, "rate of change from prev. period")
+  }
+  rename_pop <- function(pop_col_name){
+    bits <-     bits <- pop_col_name %>% 
+      str_match_all("[^\\|]+")
+    
+    pop_year <- bits %>% map_chr(2)
+    paste(pop_year, "population")
+  }
   
+  
+  data %>%
+    rename_with(rescramble_diff_col, contains("diff")) %>% 
+    rename_with(rescramble_val_col, contains("val||")) %>% 
+    rename_with(rescramble_roc_col, contains("roc||")) %>%
+    rename_with(rename_pop, contains("pop||")) %>% 
+    rename(`iz name`=iz_name)
+    
 }
+
+
 
 
 
