@@ -72,11 +72,56 @@ profile_table <- function(all_data, shared_table){
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 make_val_column <- function(col_data){
   abs_max_vals <- get_abs_p_m_max(col_data)
+  
+  cell_JS <- htmlwidgets::JS("function(cellInfo, state) {
+
+                  var currCellVal = cellInfo.value
+                  var thisColName = cellInfo.column.id;
+                  var thisColDataCurr = state.pageRows.map(function(value,index) { return value[thisColName]; });
+                  var thisColDataOrig = state.data.map(function(value,index) { return value[thisColName]; });            
+
+                  const quantile = (arr, q) => {
+                      const sorted = arr.sort((a, b) => a - b);
+                      const pos = (sorted.length - 1) * q;
+                      const base = Math.floor(pos);
+                      const rest = pos - base;
+                      if (sorted[base + 1] !== undefined) {
+                          return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+                      } else {
+                          return sorted[base];
+                      }
+                  };
+
+                  var q75Curr = quantile(thisColDataCurr, 0.75);
+                  var q75Orig = quantile(thisColDataOrig, 0.75);
+
+                  const makeInDiv = function(text, classF){
+                    return '<div class=\"' + classF + '\">' + text + '</div>';
+                  }
+
+                  var varIcon = ''
+
+                  if (currCellVal >= q75Orig){
+                      varIcon += '<i class=\"fa fa-circle\" style=\"color: #d26146; padding-right: 4px\" aria-hidden=\"true\"></i>';
+                  } else {
+                      varIcon += '<i class=\"fa fa-fw\" aria-hidden=\"true\"></i>';
+                  }
+                  if (currCellVal >= q75Curr){
+                      varIcon += '<i class=\"fa fa-circle-o\" style=\"color: #d26146\" aria-hidden=\"true\"></i>';
+                  } else {
+                      varIcon += '<i class=\"fa fa-fw\" aria-hidden=\"true\"></i>';
+                  }
+
+
+                  return makeInDiv(varIcon + makeInDiv(currCellVal.toFixed(2), 'roc_col'), 'roc_col_left')
+                }")
+  
+  
   colDef(
     show = TRUE,
     name = "Value",
     headerStyle = list(fontSize="9pt"),
-    format=colFormat(digits=2),
+    cell = cell_JS,
     align = "right",
     class = "border-left",
     style = comparison_style_generator(abs_max_vals, val_colours),
