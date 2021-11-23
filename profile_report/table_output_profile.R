@@ -79,7 +79,7 @@ make_val_column <- function(col_data){
     format=colFormat(digits=2),
     align = "right",
     class = "border-left",
-    style = comparison_style_generator(abs_max_vals),
+    style = comparison_style_generator(abs_max_vals, val_colours),
     html = TRUE,
     header = function(header_val, col_name){
       div(class = "val_and_roc_head",
@@ -127,7 +127,7 @@ make_roc_column <- function(col_data){
     format=colFormat(digits=2),
     align = "right",
     cell = roc_column_cell,
-    style = comparison_style_generator(abs_max_vals),
+    style = comparison_style_generator(abs_max_vals, p_m_colours),
     html = TRUE,
     header = function(header_val, col_name){
       div(class = "val_and_roc_head",
@@ -137,6 +137,8 @@ make_roc_column <- function(col_data){
       }
   )
 }
+
+
 
 
 
@@ -189,7 +191,7 @@ format_pct <- function(value) {
 # Makes the function that returns the style of a comparison
 # cell based on abs_max_vals
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-comparison_style_generator <- function(abs_max_vals){
+comparison_style_generator <- function(abs_max_vals, colour_pallette){
   function(value){
     pos_max <- abs_max_vals[[1]]
     neg_max <- abs_max_vals[[2]]
@@ -202,7 +204,7 @@ comparison_style_generator <- function(abs_max_vals){
       scaled <- value/neg_max
     }
     
-    list(color = "#111", background = p_m_colours(scaled), fontSize="9pt")
+    list(color = "#111", background = colour_pallette(scaled), fontSize="9pt")
   }
 }
 
@@ -213,7 +215,7 @@ comparison_style_generator <- function(abs_max_vals){
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 default_cols <- function(){
   list(
-    iz = colDef(sticky="left", name = "Intermediate Zone Code", width = 85, 
+    iz = colDef(sticky="left", name = "Intermediate Zone Code", width = 90, 
                 show = TRUE,
                 filterable = TRUE,
                 style = function(value) {
@@ -268,8 +270,8 @@ make_p_m_color_pal <- function(plus_neg_zero_colours, bias = 1) {
 }
 
 
-p_m_colours <- make_p_m_color_pal(c("#d26146", "#9cc951", "#ffffff"), bias=1.5)
-
+p_m_colours <- make_p_m_color_pal(c("#d26146", "#9cc951", "#ffffff"), bias=10)
+val_colours <- make_p_m_color_pal(c("#EAC43A", "#9cc951", "#ffffff"), bias=1.5)
 
 
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}

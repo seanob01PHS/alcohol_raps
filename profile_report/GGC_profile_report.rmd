@@ -44,16 +44,6 @@ big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
 
 # Profile
 
-Inputs {.sidebar}
--------------------------------------
-
-
-- This table shows information on various alcohol related harms indicators
-- The EASR value and rate of change of the EASR from the previous period are shown for
-  (@) **Alcohol Specific Deaths:** the time periods for this indicator are 3 calendar year aggregates.
-  (@) **Alcohol-related mental health admissions:** the time periods for this indicator are 3 financial year aggregates.
-  (@) **Alcohol-related hospital admissions:** the time periods for this indicator are single financial years.
-
 
 ```{r crosstalk_filter}
 all_table_data <- make_profile_frame(data) %>% arrange(desc(across(contains("hospital admissions"))))
@@ -62,6 +52,29 @@ all_table_data <- make_profile_frame(data) %>% arrange(desc(across(contains("hos
 
 
 ## row {.tabset}
+
+### Profile Notes
+
+- This table in the **Profile Display** tab shows information at interzone level for various alcohol related harms indicators.
+    (@) **Alcohol Specific Deaths:** the time periods for this indicator are 3 calendar year aggregates.
+    (@) **Alcohol-related mental health admissions:** the time periods for this indicator are 3 financial year aggregates.
+    (@) **Alcohol-related hospital admissions:** the time periods for this indicator are single financial years.  
+
+<br/>
+
+- Use the search bar in the top right of the search bars above the three leftmost columns to filter the data.
+- Click on the column headers to sort by that column ascending and again to sort descending.
+- Click on the black triangle at the start of each row to display more details including
+    - Comparisons in rates relative to Scotland and NHS GGC.
+    - The most recent population of that intermediate zone.  
+
+<br/>
+
+- Select a row using the tick-boxes on the left to add it to the rows for which you would like to download the displayed data.
+- Change to the **Profile Download** tab to show all the rows that are to be downloaded and click on your selected format to start the download.
+- The download data is in a wide format where the additional details are new columns in the data. 
+
+
 
 ### Profile Display
 
