@@ -1,7 +1,8 @@
 ---
-title: "GGC_profile_report"
+title: "GGC Alcohol Harms Report"
 output: 
   flexdashboard::flex_dashboard:
+    logo: ../phs_logo_mono.png
     orientation: rows
     vertical_layout: fill
     css: www/css_styles.css
@@ -41,6 +42,15 @@ data <- data[c("iz", "iz_name", "year_start", "year_str", "hscp", "indicator", "
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
 ```
 
+# Notes
+## row
+
+- This table in the **Profile Display** tab shows information at interzone level for various alcohol related harms indicators.
+    (@) **Alcohol Specific Deaths:** the time periods for this indicator are 3 calendar year aggregates.
+    (@) **Alcohol-related mental health admissions:** the time periods for this indicator are 3 financial year aggregates.
+    (@) **Alcohol-related hospital admissions:** the time periods for this indicator are single financial years.  
+
+<br/>
 
 # Profile
 
@@ -55,20 +65,39 @@ all_table_data <- make_profile_frame(data) %>% arrange(desc(across(contains("hos
 
 ### Profile Notes
 
-- This table in the **Profile Display** tab shows information at interzone level for various alcohol related harms indicators.
-    (@) **Alcohol Specific Deaths:** the time periods for this indicator are 3 calendar year aggregates.
-    (@) **Alcohol-related mental health admissions:** the time periods for this indicator are 3 financial year aggregates.
-    (@) **Alcohol-related hospital admissions:** the time periods for this indicator are single financial years.  
-
-<br/>
-
-- Use the search bar in the top right of the search bars above the three leftmost columns to filter the data.
+- Use the HSCP selector at the top or the search bars above the two leftmost columns to filter the data. Note that selecting **(All)** in the HSCP selector does not function as it should. To return to the unfiltered view, delete anything in the filter box using backspace.
 - Click on the column headers to sort by that column ascending and again to sort descending.
-- Click on the black triangle at the start of each row to display more details including
-    - Comparisons in rates relative to Scotland and NHS GGC.
+
+ \ 
+
+- The value columns are coloured based on the relative values in that column:
+    + <span class="larger_smaller_nums" style="background-color: #EAC43A">larger numbers</span> 
+    + <span class="larger_smaller_nums" style="background-color: #FBF4DA">smaller numbers</span>
+- The rate of change columns are coloured based on the relative positive (+ve) or negative (-ve) values in that column:
+    + <span class="larger_smaller_nums" style="background-color: #d26146">large +ve change</span> 
+    + <span class="larger_smaller_nums" style="background-color: #EFC6BD">small +ve change</span>
+    + <span class="larger_smaller_nums" style="background-color: #DBECC1">small -ve change</span> 
+    + <span class="larger_smaller_nums" style="background-color: #9CC951">large -ve change</span>
+    + The rate of change columns also have arrows \ \ 
+<span style="color: #B8100D"> `r shiny::icon("arrow-up")` </span> \ 
+<span style="color: #71B109"> `r shiny::icon("arrow-down")` </span> \  
+<span style="color: #F4E61F"> `r shiny::icon("grip-lines")` </span> \ \ 
+corresponding to +ve, -ve and zero change.
+    + A dash -- in the rate of change column indicates that the previous value was zero so no relative change can be calculated. 
+
+\ 
+
+- In the initial view there will be red circles \ <span style="color: #B8100D"> `r shiny::icon("circle")` </span> \ that signify if that value is in the 75^th^ percentile or above for NHS GGC.
+- Once the data is filtered, an open red circle \ <span style="color: #B8100D"> `r shiny::icon("circle-o")` </span> \ will also be shown to signify if that value is in the 75^th^ percentile or above for the filtered data. If you filter for a specific HSCP this will help identify outliers within that HSCP.
+
+\ 
+
+- Click on the black triangle at the start of each row to display more details
+    - Comparisons in rates relative to Scotland and NHS GGC. The cells for this are coloured to the same scheme as the rate of change columns.
     - The most recent population of that intermediate zone.  
 
-<br/>
+\ 
+
 
 - Select a row using the tick-boxes on the left to add it to the rows for which you would like to download the displayed data.
 - Change to the **Profile Download** tab to show all the rows that are to be downloaded and click on your selected format to start the download.
@@ -84,6 +113,7 @@ download_table <- table_for_download(all_table_data)
 shared_table_main <- SharedData$new(all_table_data, group="profile_table", key = ~iz)
 shared_table_download <- SharedData$new(download_table, group="profile_table", key = ~iz)
 
+filter_select("auto", "HSCP", shared_table_main, ~hscp, multiple=FALSE)
 profile_table(all_table_data, shared_table_main)
 
 ```

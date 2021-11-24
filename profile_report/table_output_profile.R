@@ -55,7 +55,7 @@ profile_table <- function(all_data, shared_table){
             onClick = "select",
             columns = my_col_defs,
             defaultColDef = colDef(show = FALSE),
-            searchable = TRUE,
+            searchable = FALSE,
             compact = TRUE,
             pagination = FALSE,
             columnGroups = my_col_groups,
@@ -106,10 +106,13 @@ make_val_column <- function(col_data){
                   } else {
                       varIcon += '<i class=\"fa fa-fw\" aria-hidden=\"true\"></i>';
                   }
-                  if (currCellVal >= q75Curr){
-                      varIcon += '<i class=\"fa fa-circle-o\" style=\"color: #d26146\" aria-hidden=\"true\"></i>';
-                  } else {
-                      varIcon += '<i class=\"fa fa-fw\" aria-hidden=\"true\"></i>';
+                  
+                  if (thisColDataCurr.length != thisColDataOrig.length){
+                      if (currCellVal >= q75Curr){
+                          varIcon += '<i class=\"fa fa-circle-o\" style=\"color: #d26146\" aria-hidden=\"true\"></i>';
+                      } else {
+                          varIcon += '<i class=\"fa fa-fw\" aria-hidden=\"true\"></i>';
+                      }
                   }
 
 
@@ -148,12 +151,12 @@ make_roc_column <- function(col_data){
   
   roc_column_cell <- function(value){
     show_str <- format_pct(value)
-    if (is.na(value) || value==0){
-      icon_and_colour <- arrows_and_colours[["zero"]]
+    if (is.na(value) || value>0){
+      icon_and_colour <- arrows_and_colours[["up"]]
     } else if (value < 0){
       icon_and_colour <- arrows_and_colours[["down"]]
     } else {
-      icon_and_colour <- arrows_and_colours[["up"]]
+      icon_and_colour <- arrows_and_colours[["zero"]]
     }
     
     icon <-tagAppendAttributes(icon_and_colour[[1]],
@@ -260,7 +263,7 @@ comparison_style_generator <- function(abs_max_vals, colour_pallette){
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 default_cols <- function(){
   list(
-    iz = colDef(sticky="left", name = "Intermediate Zone Code", width = 90, 
+    iz = colDef(sticky="left", name = "Intermediate Zone Code", width = 95, 
                 show = TRUE,
                 filterable = TRUE,
                 style = function(value) {
@@ -281,7 +284,7 @@ default_cols <- function(){
                      headerStyle = list(fontSize="9pt")),
     
     hscp = colDef(sticky="left", name = "HSCP", width=125,
-                  filterable = TRUE,
+                  filterable = FALSE,
                   show = TRUE,
                   style=list(fontSize="9pt"),
                   headerStyle = list(fontSize="9pt")),
@@ -407,11 +410,6 @@ details_format_generator <- function(abs_max_vals_i){
   pos_max <- abs_max_vals_i[[1]]
   neg_max <- abs_max_vals_i[[2]]
   function(value, row_index, col_name){
-    # print("===========")
-    # print(col_name)
-    # print(value)
-    # print(pos_max)
-    # print(neg_max)
     
     if (value==0 | is.na(value)){
       scaled <- 0
@@ -420,8 +418,6 @@ details_format_generator <- function(abs_max_vals_i){
     } else {
       scaled <- value/neg_max
     }
-    
-    # print(scaled)
 
     out_str <- format_pct(value)
     div(class = "details_col", style = list(background = p_m_colours(scaled)), out_str)
