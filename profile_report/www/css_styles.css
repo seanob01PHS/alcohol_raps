@@ -9,6 +9,13 @@
   text-align: right;
 }
 
+.roc_col_highlight{
+  font-size: 12px;
+  float: right;
+  text-align: right;
+  background-color: #EAC43A;
+}
+
 .roc_col_left{
   font-size: 15px;
   float: left;

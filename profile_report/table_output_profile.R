@@ -104,11 +104,12 @@ make_val_column <- function(col_data){
                   }
 
                   var varIcon = ''
+                  var varCellClass = ''
 
                   if (currCellVal >= q75Orig){
-                      varIcon += '<i class=\"fa fa-circle\" style=\"color: #d26146; padding-right: 4px\" aria-hidden=\"true\"></i>';
+                      varCellClass = 'roc_col_highlight';
                   } else {
-                      varIcon += '<i class=\"fa fa-fw\" aria-hidden=\"true\"></i>';
+                      varCellClass = 'roc_col';
                   }
                   
                   if (thisColDataCurr.length != thisColDataOrig.length){
@@ -120,7 +121,7 @@ make_val_column <- function(col_data){
                   }
 
 
-                  return makeInDiv(varIcon + makeInDiv(currCellVal.toFixed(2), 'roc_col'), 'roc_col_left')
+                  return makeInDiv(varIcon + makeInDiv(currCellVal.toFixed(2), varCellClass), 'roc_col_left')
                 }")
   
   
@@ -131,7 +132,6 @@ make_val_column <- function(col_data){
     cell = cell_JS,
     align = "right",
     class = "border-left",
-    style = comparison_style_generator(abs_max_vals, val_colours),
     html = TRUE,
     header = function(header_val, col_name){
       div(class = "val_and_roc_head",
@@ -148,28 +148,10 @@ make_val_column <- function(col_data){
 make_roc_column <- function(col_data){
   abs_max_vals <- get_abs_p_m_max(col_data)
   
-  arrows_and_colours <- list(
-    up=list(shiny::icon("arrow-up"), "#B8100D"),
-    down=list(shiny::icon("arrow-down"), "#71B109"),
-    zero=list(shiny::icon("grip-lines"), "#F4E61F"))
-  
   roc_column_cell <- function(value){
     show_str <- format_pct(value)
-    if (is.na(value) || value>0){
-      icon_and_colour <- arrows_and_colours[["up"]]
-    } else if (value < 0){
-      icon_and_colour <- arrows_and_colours[["down"]]
-    } else {
-      icon_and_colour <- arrows_and_colours[["zero"]]
-    }
-    
-    icon <-tagAppendAttributes(icon_and_colour[[1]],
-                               style = paste("color:", icon_and_colour[[2]]))
-    div(class="roc_col_left",
-        role = "img",
-        icon,
-        div(class="roc_col",
-            show_str))
+    div(class="roc_col",
+            show_str)
   }
   
   colDef(
