@@ -54,6 +54,15 @@ table_with_sparklines <- function(table_data, p_m_colouring = FALSE, sparkline_t
   
   reactable(table_data,
             columns = col_defs,
+            defaultColDef = colDef(
+              cell = function(value){
+                if (is.numeric(value)){
+                  format(round(value, digits = 1), big.mark=",")
+                } else{
+                  value
+                }
+                }
+            ),
             compact = TRUE,
             columnGroups = list(
               colGroup(name="Year Ending", columns=year_end_group)
@@ -112,7 +121,16 @@ get_abs_p_m_max <- function(table){
   c(pos_max, neg_max)
 }
 
+
 format_pct <- function(value) {
   if (is.na(value)) "  \u2013  "    # en dash for NAs
-  else formatC(paste0(round(value * 100), "%"), width = 6)
+  else {
+    sign_numeric <- sign(value)
+    sign_str <- case_when(sign_numeric==-1~"-",
+                          sign_numeric==+1~"+",
+                          TRUE~"")
+    
+    paste0(sign_str,
+           formatC(paste0(round(abs(value) * 100, digits = 1), "%"), width = 6))
+  }
 }

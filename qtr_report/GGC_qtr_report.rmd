@@ -1,9 +1,11 @@
 ---
-title: "GGC_qtr_report.rmd"
+title: "Alcohol–related Hospital Admissions"
 output: 
   flexdashboard::flex_dashboard:
+    logo: ../phs_logo_mono.png
     orientation: rows
     vertical_layout: scroll
+    css: www/css_styles.css
 ---
 
 
@@ -18,6 +20,7 @@ library(reactable)
 library(sparklines)
 library(phsstyles)
 library(plotly)
+library(downloadthis)
 
 
 data_dir <- "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/EASR/output/"
@@ -32,40 +35,109 @@ source("table_output.R")
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
 ```
 
-# Landing Page
+Notes {data-icon="fa-info-circle"}
+===================================== 
 
-# Attendance Trends
+row
+--------------------------------------------------
+
+###
+
+#### **Alcohol-Related Hospital Admissions**
+#### **NHS Greater Glasgow and Clyde**
+##### Report date: `r format(Sys.time(), "%d %b %Y")`
+
+<br/>
+
+This report contains
+
+- Trends in EASR (per 10,000 population) and Number of Admissions.
+- Percentage change in EASR and Number of Admissions (from first year and year-on-year).
+- Figures shown are for one-year time periods on a rolling quarterly basis.
+
+EASR - European Age-Sex Standardised Rate
+
+<br/>
+
+#### <span style="text-decoration:underline">**Data Notes**</span>
+
+
+(1) Alcohol-related hospital admissions
+Source: SMR01, Public Health Scotland
+
+- The number of inpatient and day case stays where an alcohol-related condition is recorded in any of the 6 diagnostic positions.
+- Alcohol-related condition ICD-10 diagnosis codes: E24.4, E51.2, F10, G31.2, G62.1, G72.1, I42.6, K29.2, K70, K85.2, K86.0, O35.4, P04.3, Q86.0, R78.0, T51.0, T51.1, T51.9, X45, X65, Y15, Y57.3, Y90, Y91, Z50.2, Z71.4, Z72.1.
+- Includes both elective and non-elective admissions.
+
+(2) Population Estimates
+Source: Mid-Year Population Estimates, National Records Scotland
+
+
+
+
+Admission Trends {data-icon="fa-table"}
+===================================== 
 
 Info {.sidebar}
 -------------------------------------
 
-- This page shows alcohol related hospital attendances and EASRs (European Age Standardised Rates) of alcohol related attendances for the HSCPs of NHS Greater Glasgow and Clyde.
+**Alcohol-related hospital admissions**
 
-- Select the tabs to the right to change from a table showing raw number and EASR.
-
-- The trend lines show a trend for that row and the plot below shows the EASR trends in more detail. Click on the traces in the legend of the plot to show/hide them.
+**NHS Greater Glasgow and Clyde and HSCPs.**
 
 
-## row {.tabset data-height=350}
+- Trends in EASR (per 10,000 population) and Number of Admissions 
+- In the table choose between the tabs to show either EASR or Number of admissions.
+- A summary trend is shown at the end of each row of the table. 
+- The chart below the table shows the trend in EASR in more detail. Click on the traces in the legend of the chart to show/hide them.
 
-### Alcohol Related Hospital Attendances
-```{r reactable_1}
-trend_table_data_1 <- trend_table_data(data, "number")
-table_with_sparklines(trend_table_data_1)
 
-```
 
-### Alcohol Attendances EASR
+row {.tabset data-height=390}
+--------------------------------------------------
+
+### EASR
 
 ```{r reactable_2}
 trend_table_data_2 <- trend_table_data(data, "EASR")
+
+trend_table_data_2 %>% 
+  download_this(
+    output_name = "EASR trends",
+    output_extension = ".csv",
+    button_label = "Download data as csv",
+    button_type = "primary",
+    has_icon = TRUE,
+    icon = "fa fa-save"
+  )
+
 table_with_sparklines(trend_table_data_2)
 
 ```
 
-## row
+### Number
+```{r reactable_1}
+trend_table_data_1 <- trend_table_data(data, "number")
 
-### EASR Trends in detail {data-height=650}
+trend_table_data_1 %>% 
+  download_this(
+    output_name = "Number trends",
+    output_extension = ".csv",
+    button_label = "Download data as csv",
+    button_type = "primary",
+    has_icon = TRUE,
+    icon = "fa fa-save"
+  )
+
+table_with_sparklines(trend_table_data_1)
+
+```
+
+
+row
+--------------------------------------------------
+
+###{data-height=650}
 
 ```{r trends, show=FALSE}
 colours <- c("purple",
@@ -94,9 +166,9 @@ area_names <- trend_data %>% names() %>% tail(-1)
 fig <- trend_data %>% 
   plot_ly(type = 'scatter', mode = 'lines',
           line=list(width=3.5)) %>% 
-  layout(title = '',
-         xaxis = list(title = ''),
-         yaxis = list (title = 'EASR (per 100,000)',
+  layout(title = 'Trends in EASR',
+         xaxis = list(title = 'Year ending'),
+         yaxis = list (title = 'EASR (per 10,000)',
                        range = c(y_lower, y_upper)),
          hovermode = "x unified")
 
@@ -107,7 +179,7 @@ for (i in seq_along(area_names)){
   if(area %in% big_areas){
     fig <- fig %>% add_trace(x=~date_end, y=trace_f, name=area, line=list(dash = 'dash', color=colours[[i]]))
   }else{
-    fig <- fig %>% add_trace(x=~date_end, y=trace_f, name=area, visible="legendonly", line=list(color=colours[[i]]))  
+    fig <- fig %>% add_trace(x=~date_end, y=trace_f, name=area, line=list(color=colours[[i]]))  
   }
 
 }
@@ -116,48 +188,56 @@ fig
 ```
 
 
-# Change Trends
+Change Trends {data-icon="fa-table"}
+===================================== 
 
 Info {.sidebar}
 -------------------------------------
 
-- This page contains tables showing the change in alcohol related attendances.
+**Alcohol-related hospital admissions**
 
-- Green cells indicate a decrease and red cells an inrease.
+**NHS Greater Glasgow and Clyde and HSCPs.**
 
-- The plots at the top of the page show change relative to the first date shown and the plots at the bottom of the page show year on year change.
+- Percentage change in EASR (per 10,000 population) and Number of Admissions
+- First table - % change from first year;  Second table - % change year-on-year
+- In each table choose between the tabs to view % change in either EASR or Number of Admissions 
+- Green cells indicate a decrease and red cells an increase. The darker the colour the bigger the change.
+- A summary trend is shown at the end of each row of the table. 
 
-- Choosing between the tabs will change whether the underlying figures relate to the raw number of attandences or the EASR.
 
-## row {.tabset}
+row {.tabset}
+--------------------------------------------------
 
-### Attendance relative to first year
-
-```{r reactable_3}
-change_table_data_1 <- relative_change_table_data(data, "number")
-table_with_sparklines(change_table_data_1, p_m_colouring = TRUE, sparkline_type="bar")
-```
-
-### EASR relative to first year
+### EASR - % change from first year
 
 ```{r reactable_4}
 change_table_data_2 <- relative_change_table_data(data, "EASR")
+
 table_with_sparklines(change_table_data_2, p_m_colouring = TRUE, sparkline_type="bar")
 ```
 
+### Number - % change from first year
 
-## row {.tabset}
+```{r reactable_3}
+change_table_data_1 <- relative_change_table_data(data, "number")
 
-### Attendance year on year change
-
-```{r reactable_5}
-change_table_data_3 <- year_on_year_change(data, "number")
-table_with_sparklines(change_table_data_3, p_m_colouring = TRUE, sparkline_type="bar")
+table_with_sparklines(change_table_data_1, p_m_colouring = TRUE, sparkline_type="bar")
 ```
 
-### EASR year on year change
+
+row {.tabset}
+--------------------------------------------------
+
+### EASR - % change year-on-year
 
 ```{r reactable_6}
 change_table_data_4 <- year_on_year_change(data, "EASR")
 table_with_sparklines(change_table_data_4, p_m_colouring = TRUE, sparkline_type="bar")
+```
+
+### Number - % change year-on-year
+
+```{r reactable_5}
+change_table_data_3 <- year_on_year_change(data, "number")
+table_with_sparklines(change_table_data_3, p_m_colouring = TRUE, sparkline_type="bar")
 ```

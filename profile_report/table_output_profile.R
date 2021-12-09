@@ -1,6 +1,6 @@
 library(htmltools)
 
-profile_table <- function(all_data, shared_table){
+profile_table <- function(all_data, shared_table, all_default_cols=TRUE){
   
   populations <- all_data %>%
     select(contains("pop"), iz) %>% 
@@ -22,8 +22,12 @@ profile_table <- function(all_data, shared_table){
     str_match_all("[^\\|]+") %>% 
     map_chr(2)
   
+  if (all_default_cols){
+    my_col_defs <- default_cols_full()
+  } else {
+    my_col_defs <- default_cols_area()
+  }
   
-  my_col_defs <- default_cols()
   my_col_groups <- list()
   
   # Main loop where all the value and roc columns are generated
@@ -170,7 +174,7 @@ make_roc_column <- function(col_data){
   
   colDef(
     show = TRUE,
-    name = "Rate of Change",
+    name = "% change",
     headerStyle = list(fontSize="9pt"),
     format=colFormat(digits=2),
     align = "right",
@@ -181,7 +185,7 @@ make_roc_column <- function(col_data){
       div(class = "val_and_roc_head",
           header_val,
           div(class="val_and_roc_subhead",
-              "rel. prev. period"))
+              "relative to prev. period"))
       }
   )
 }
@@ -230,7 +234,7 @@ format_pct <- function(value) {
                           TRUE~"")
     
     paste0(sign_str,
-           formatC(paste0(round(abs(value) * 100), "%"), width = 6))
+           formatC(paste0(round(abs(value) * 100, digits = 1), "%"), width = 6))
   }
 }
 
@@ -261,7 +265,7 @@ comparison_style_generator <- function(abs_max_vals, colour_pallette){
 # Sets up the defaults (basic info) columns
 # Just to clear up space
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-default_cols <- function(){
+default_cols_full <- function(){
   list(
     iz = colDef(sticky="left", name = "Intermediate Zone Code", width = 95, 
                 show = TRUE,
@@ -292,6 +296,32 @@ default_cols <- function(){
     .selection = colDef(show=TRUE)
   )
 }
+
+
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# Sets up the defaults (basic info) columns
+# For when we only want area name (when showing big areas)
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+default_cols_area <- function(){
+  list(
+    iz = colDef(sticky="left", name = "Area", width = 300, 
+                show = TRUE,
+                style = function(value) {
+                  if (value %in% big_areas) {
+                    font <- "bold"
+                    background <- "#e6f2fb"
+                  } else {
+                    font <- "regular"
+                    background <- "#ffffff"
+                  }
+                  list(background = background, fontWeight = font, fontSize="9pt")
+                },
+                headerStyle = list(fontSize="9pt"))
+  )
+}
+
+
+
 
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # returns a function that returns different colours to positive
@@ -383,7 +413,7 @@ details_generator <- function(data, populations, population_year){
           h2(paste(population_year, "Population")),
           format(round(populations[index, "pop"][[1]]), big.mark=",")),
       div(class = "details_table",
-                   h1("Relative difference in rates compared to Scotland and NHS GGC"),
+                   h1("% difference in rates relative to Scotland and NHS GGC"),
                    reactable(details_df_list[[index]],
                              columns = details_col_defs,
                              outlined = TRUE
