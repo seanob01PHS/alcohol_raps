@@ -27,8 +27,8 @@ library(downloadthis)
 ```
 
 ```{r init, include=FALSE}
-source("process_wrangle.R")
-source("table_output_profile.R")
+source(here("dashboard", "profile_report", "process_wrangle.R"))
+source(here("dashboard", "profile_report", "table_output_profile.R"))
 
 data_dir <- "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/output/"
 data <-  read.xlsx(paste0(data_dir, "GGC Alcohol Data.xlsx"), 1) %>% 

@@ -11,8 +11,7 @@ output:
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-
+library(here)
 library(tidyverse)
 library(knitr)
 library(lubridate)
@@ -22,16 +21,17 @@ library(phsstyles)
 library(plotly)
 library(downloadthis)
 
+knitr::opts_chunk$set(echo = FALSE)
 
-data_dir <- "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/EASR/output/"
-data <- read_csv(paste0(data_dir, "Qtr_alc_adm_GGC.csv")) %>% 
+data_dir <- here("output", "EASR_accumulated_data", "qtr_alc_adm_GGC.csv")
+data <- read_csv(data_dir) %>% 
   select(-lookup) %>% 
   mutate(date_end = ymd(date_end),
          EASR=round(EASR, 2),
          area=recode(area, `NHS Greater Glasgow and Clyde`="NHS GGC"))
 
-source("trend_table.R")
-source("table_output.R")
+source(here("dashboard", "qtr_report", "trend_table.R"))
+source(here("dashboard", "qtr_report", "table_output.R"))
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
 ```
 
@@ -90,6 +90,7 @@ Info {.sidebar}
 - In the table choose between the tabs to show either EASR or Number of admissions.
 - A summary trend is shown at the end of each row of the table. 
 - The chart below the table shows the trend in EASR in more detail. Click on the traces in the legend of the chart to show/hide them.
+- If viewed on a narrow screen, press shift while scrolling on the mouse and hovering over the table to scroll the table horizontally.
 
 
 
@@ -108,7 +109,8 @@ trend_table_data_2 %>%
     button_label = "Download data as csv",
     button_type = "primary",
     has_icon = TRUE,
-    icon = "fa fa-save"
+    icon = "fa fa-save",
+    csv2 = FALSE
   )
 
 table_with_sparklines(trend_table_data_2)
@@ -126,7 +128,8 @@ trend_table_data_1 %>%
     button_label = "Download data as csv",
     button_type = "primary",
     has_icon = TRUE,
-    icon = "fa fa-save"
+    icon = "fa fa-save",
+    csv2 = FALSE
   )
 
 table_with_sparklines(trend_table_data_1)
@@ -203,7 +206,8 @@ Info {.sidebar}
 - The years are "rolling years" in that 30-Sep-2019 indicates the year from 30-Sep 2018 to 30-Sep-2019.
 - In each table choose between the tabs to view % change in either EASR or Number of Admissions 
 - Green cells indicate a decrease and red cells an increase. The darker the colour the bigger the change.
-- A summary trend is shown at the end of each row of the table. 
+- A summary trend is shown at the end of each row of the table.
+- If viewed on a narrow screen, press shift while scrolling on the mouse and hovering over the table to scroll the table horizontally.
 
 
 row {.tabset}
