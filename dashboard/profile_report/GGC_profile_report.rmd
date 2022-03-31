@@ -24,11 +24,18 @@ library(crosstalk)
 library(DT)
 library(sjmisc)
 library(downloadthis)
+library(here)
 ```
 
 ```{r init, include=FALSE}
-source(here("dashboard", "profile_report", "process_wrangle.R"))
+source(here("dashboard", "profile_report", "process_wrangle_profile.R"))
+source(here("dashboard", "profile_report", "process_wrangle_indicator.R"))
+
 source(here("dashboard", "profile_report", "table_output_profile.R"))
+source(here("dashboard", "profile_report", "table_output_indicator.R"))
+
+source(here("dashboard", "funcs_wrangle.R"))
+source(here("dashboard", "funcs_dashboard.R"))
 
 data_dir <- "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/output/"
 data <-  read.xlsx(paste0(data_dir, "GGC Alcohol Data.xlsx"), 1) %>% 
@@ -91,11 +98,7 @@ Source: Deaths, National Records Scotland
 
 
 
-
-<style>
-div.phsblu50 { background-color:#E9D8D8; border-radius: 5px; padding: 20px; color: #A32E14}
-</style>
-<div class = "phsblu50">
+<div class = "warning_box">
 Management Information only, not for onward distribution
 This information has been released for management information purposes only. The data have not been adjusted to protect against potential disclosure risks and may contain information which enables (perhaps with the aid of further knowledge of the topic) an individual patient to be identified. Please ensure circulation is restricted and that patient confidentiality is not compromised. For further guidance see NSS’s Statistical Disclosure Control Protocol http://www.isdscotland.org/Products-and-Services/Data-Protection-and-Confidentiality/#smallNumbers. Please contact phs.list.glasgow@nhs.net if you have any queries regarding this.
 </div>
@@ -183,9 +186,17 @@ all_table_data <- make_profile_frame(data) %>% arrange(desc(across(contains("hos
 
 ```
 
+row {data-height=34}
+--------------------------------------------------
+
+<div class = "warning_box">
+Management Information only, not for onward distribution
+This information has been released for management information purposes only. The data have not been adjusted to protect against potential disclosure risks. Please see the bottom of the "General Notes" tab under the "Notes" page.
+</div>
 
 row {.tabset}
 --------------------------------------------------
+
 ```{r profile_setup, include=FALSE}
 iz_table <- iz_data(all_table_data)
 big_area_table <- big_area_data(all_table_data) %>% arrange(iz %in% big_areas)
@@ -212,6 +223,8 @@ profile_table(big_area_table, big_area_table, all_default_cols=FALSE)
 
 ### IZ Profile
 
+
+
 ```{r reactable_display_profile}
 filter_select("auto", "HSCP", shared_table_iz_main, ~hscp, multiple=TRUE)
 profile_table(iz_table, shared_table_iz_main)
@@ -220,13 +233,7 @@ profile_table(iz_table, shared_table_iz_main)
 
 ### IZ profile download
 
-<style>
-div.phsblu50 { background-color:#E9D8D8; border-radius: 5px; padding: 20px; color: #A32E14}
-</style>
-<div class = "phsblu50">
-Management Information only, not for onward distribution
-This information has been released for management information purposes only. The data have not been adjusted to protect against potential disclosure risks. Please see the bottom of the "General Notes" tab under the "Notes" page.
-</div>
+
 
 \ 
 \ 
@@ -243,3 +250,88 @@ datatable(shared_table_iz_download,
           )
 
 ```
+
+Hospital Admissions {data-icon="fa-table"}
+=====================================
+
+```{r indicator_setup, include=FALSE}
+indicators <- c("Alcohol-related hospital admissions",
+                "Alcohol-related mental health admissions",
+                "Alcohol-specific deaths")
+
+indicator_data <- indicators %>% 
+  map(~make_indicator_detail_frames(data = data, indicator_name = .x))
+
+names(indicator_data) <- indicators
+
+# Making shared versions of the indicator data
+indicator_data_shared <- indicator_data %>%
+  map(~.x %>% map(~ .x %>% 
+                    # add sparkline to shared data
+                    mutate(sparkline=NA) %>% 
+                    SharedData$new( key=~iz, group = "indicator")))
+
+demo_df_regular <- indicator_data %>% .[[1]] %>% .[[1]]
+demo_df_shared <- indicator_data_shared %>% .[[1]] %>% .[[1]]
+
+```
+row {data-height=20}
+--------------------------------------------------
+
+<div class = "warning_box">
+Management Information only, not for onward distribution
+This information has been released for management information purposes only. The data have not been adjusted to protect against potential disclosure risks. Please see the bottom of the "General Notes" tab under the "Notes" page.
+</div>
+
+
+row {data-height=30}
+--------------------------------------------------
+
+
+<div class = "filter_select_box">
+
+```{r ha_hscp_selector}
+filter_select("select_ha", "HSCP", indicator_data_shared[["Alcohol-related hospital admissions"]][["vals"]], ~hscp, multiple=TRUE)
+```
+
+</div>
+
+row {.tabset}
+--------------------------------------------------
+
+### EASR
+
+```{r ha_vals}
+
+indicator_table(indicator_data[["Alcohol-related hospital admissions"]][["vals"]],
+                indicator_data_shared[["Alcohol-related hospital admissions"]][["vals"]],
+                type = "val",
+                sparkline_type = "line")
+
+```
+
+### Change from Initial Year
+
+```{r ha_change_ini}
+
+indicator_table(indicator_data[["Alcohol-related hospital admissions"]][["change_ini"]],
+                indicator_data_shared[["Alcohol-related hospital admissions"]][["change_ini"]],
+                type = "change",
+                ini_or_year_on_year = "ini",
+                sparkline_type = "bar")
+
+```
+
+### Year on Year Change
+
+```{r ha_change_rolling}
+
+indicator_table(indicator_data[["Alcohol-related hospital admissions"]][["change_rolling"]],
+                indicator_data_shared[["Alcohol-related hospital admissions"]][["change_rolling"]],
+                type = "change",
+                ini_or_year_on_year = "year_on_year",
+                sparkline_type = "bar")
+
+```
+
+

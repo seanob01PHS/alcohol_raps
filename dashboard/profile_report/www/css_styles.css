@@ -2,7 +2,9 @@
   border-left: 2px solid #555;
 }
 
-
+.border-right {
+  border-right: 2px solid #555;
+}
 .roc_col{
   font-size: 12px;
   float: right;
@@ -157,6 +159,25 @@
     font-size: 12px;
     margin: auto;
 }
+
+.filter_select_box {
+  width: 95%;
+  max-height: 10px;
+  padding-bottom: 10px;
+}
+
+
+.warning_box {
+  width: 95%;
+  height: auto;
+  background-color: #E9D8D8;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 10px;
+  color: #A32E14;
+  
+}
+
 
 /*------------------------------------------*/
 /*------------------------------------------*/

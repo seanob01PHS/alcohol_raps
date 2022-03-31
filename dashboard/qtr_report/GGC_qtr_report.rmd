@@ -32,6 +32,9 @@ data <- read_csv(data_dir) %>%
 
 source(here("dashboard", "qtr_report", "trend_table.R"))
 source(here("dashboard", "qtr_report", "table_output.R"))
+source(here("dashboard", "funcs_wrangle.R"))
+source(here("dashboard", "funcs_dashboard.R"))
+
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
 ```
 

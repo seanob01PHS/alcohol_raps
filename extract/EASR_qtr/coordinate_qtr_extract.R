@@ -9,15 +9,15 @@ coordinate_qtr_extract <- function(qtr_start, qtr_end){
   
   # generate the latest data before checking for missing other missing data.
   if(qtr_end %in% (missing_qtrs_and_files %>% map(1))){
-    message(paste0("Generating data for qtr end:", qtr_end))
+    message(paste0("Generating data for qtr end: ", qtr_end))
     generate_new_qtr_data(qtr_end)
   }
 
-  
+  # update the missing files
+  missing_qtrs_and_files <- find_missing_qtr_data(qtr_start, qtr_end)
 
   # if other files are absent
-  if(length(missing_qtrs_and_files %>% 
-            discard(~ .x[[1]] == qtr_end))>0){
+  if(length(missing_qtrs_and_files)>0){
     
     missing_bits_str <- 
       missing_qtrs_and_files %>% 
