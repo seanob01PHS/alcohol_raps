@@ -97,7 +97,8 @@ default_cols_full <- function(width_stretch=1){
                   style=list(fontSize="9pt"),
                   headerStyle = list(fontSize="9pt")),
     
-    .selection = colDef(show=TRUE)
+    # no tick selector column for now
+    .selection = colDef(show=FALSE)
   )
 }
 

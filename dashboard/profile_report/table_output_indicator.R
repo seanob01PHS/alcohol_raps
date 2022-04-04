@@ -107,9 +107,9 @@ make_change_column <- function(col_data){
 # Header string for year type
 find_year_type <- function(sample_year_str){
   if (grepl("to", sample_year_str)){
-    "3 Fin. Year aggregates"
+    "3 Financial-Year Aggregates"
   } else if (grepl("-", sample_year_str)){
-    "3 Cal. Year aggregates"
+    "3 Calendar-Year Aggregates"
   } else if (grepl("/", sample_year_str)){
     "Financial Year"
   } else {
