@@ -38,6 +38,8 @@ source(here("dashboard", "profile_report", "table_output_indicator.R"))
 source(here("dashboard", "funcs_wrangle.R"))
 source(here("dashboard", "funcs_dashboard.R"))
 
+source(here("dashboard", "warning_text.R"))
+
 data_dir <- "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/output/"
 data <-  read.xlsx(paste0(data_dir, "GGC Alcohol Data.xlsx"), 1) %>% 
   select(-lookup)
@@ -190,10 +192,9 @@ all_table_data <- make_profile_frame(data) %>% arrange(desc(across(contains("hos
 row {data-height=34}
 --------------------------------------------------
 
-<div class = "warning_box">
-Management Information only, not for onward distribution
-This information has been released for management information purposes only. The data have not been adjusted to protect against potential disclosure risks. Please see the bottom of the "General Notes" tab under the "Notes" page.
-</div>
+```{r warn_0}
+warning_text()
+```
 
 row {.tabset}
 --------------------------------------------------
@@ -267,9 +268,6 @@ profile_table(iz_table, shared_table_iz_main)
 ```
 
 
-Hospital Admissions {data-icon="fa-table"}
-=====================================
-
 ```{r indicator_setup, include=FALSE}
 indicators <- c("Alcohol-related hospital admissions",
                 "Alcohol-related mental health admissions",
@@ -329,13 +327,11 @@ output_indicator <-
 names(output_indicator) <- indicators
 
 ```
-row {data-height=20}
---------------------------------------------------
 
-<div class = "warning_box">
-Management Information only, not for onward distribution
-This information has been released for management information purposes only. The data have not been adjusted to protect against potential disclosure risks. Please see the bottom of the "General Notes" tab under the "Notes" page.
-</div>
+
+
+Hospital Admissions {data-icon="fa-table"}
+=====================================
 
 row {data-height=30}
 --------------------------------------------------
@@ -360,6 +356,10 @@ filter_select("select_ha", "HSCP", indicator_data_shared[[cur_indicator]][["vals
 ```
 
 </div>
+
+```{r warn_1}
+warning_text()
+```
 
 </div>
 
@@ -400,15 +400,6 @@ output_indicator[[cur_indicator]] %>%
 Mental-Health Admissions {data-icon="fa-table"}
 =====================================
 
-
-row {data-height=20}
---------------------------------------------------
-
-<div class = "warning_box">
-Management Information only, not for onward distribution
-This information has been released for management information purposes only. The data have not been adjusted to protect against potential disclosure risks. Please see the bottom of the "General Notes" tab under the "Notes" page.
-</div>
-
 row {data-height=30}
 --------------------------------------------------
 
@@ -432,6 +423,11 @@ filter_select("select_ha", "HSCP", indicator_data_shared[[cur_indicator]][["vals
 ```
 
 </div>
+
+```{r warn_2}
+warning_text()
+```
+
 
 </div>
 
@@ -471,14 +467,6 @@ Deaths {data-icon="fa-table"}
 =====================================
 
 
-row {data-height=20}
---------------------------------------------------
-
-<div class = "warning_box">
-Management Information only, not for onward distribution
-This information has been released for management information purposes only. The data have not been adjusted to protect against potential disclosure risks. Please see the bottom of the "General Notes" tab under the "Notes" page.
-</div>
-
 row {data-height=30}
 --------------------------------------------------
 
@@ -502,6 +490,10 @@ filter_select("select_ha", "HSCP", indicator_data_shared[[cur_indicator]][["vals
 ```
 
 </div>
+
+```{r warn_3}
+warning_text()
+```
 
 </div>
 
