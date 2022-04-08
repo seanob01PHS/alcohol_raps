@@ -208,7 +208,7 @@ format_pct <- function(value) {
     paste0(sign_str,
            formatC(paste0(round(abs(value) * 100, digits = 1), "%"), width = 6))
   }
-} %>% %>% %>% %>% %>% <- <- %>% 
+}
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # For colouring cells in 75th %ile+ for the whole table (static)
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
