@@ -108,7 +108,7 @@ This information has been released for management information purposes only. The
 
 
 
-### Profile Notes {data-icon="fa-table"}
+### Profile Notes
 
 #### **Alcohol Harms Report**
 #### **NHS Greater Glasgow and Clyde**
@@ -139,12 +139,9 @@ This table shows rates and rates of change of indicators for all IZs within NHS 
 - Note that selecting **(All)** in the HSCP selector does not function as it should. To return to the unfiltered view, delete anything in the filter box using backspace.
 
 
-Since there are many rows in **IZ Profile** the user is left to select which rows they wish to download. Downloading all rows is still possible.  
+There is a download button above the **IZ Profile** table.
 
-- Select a row using the tick-boxes on the left to add it to the rows for which you would like to download the displayed data.
-- Initially all rows are selected and you cannot select zero rows.
-- Change to the **Profile Download** tab to show all the rows that are to be downloaded and click copy to copy the selected rows to your clipboard.
-- The download data is in a wide format where the additional details are new columns in the data.  
+- The download will be all rows in the table, rather than any filtered state that the tables may be in at the point of the download.
 
 Like with the **HSCP profile**, this profile also colours data cells to indicate rows in a high percentile of the data.   
 
@@ -174,11 +171,53 @@ Like with the **HSCP profile**, this profile also colours data cells to indicate
     - The most recent population of that intermediate zone.  
 
 
+### Indicator Detail Notes
 
+#### **Alcohol Harms Report**
+#### **NHS Greater Glasgow and Clyde**
+#### Information for using the 'Hospital Admissions', 'Mental-Health Admissions' and 'Deaths' pages
 
+<br/>
 
+For each indicator - Alcohol-related hospital admissions, Alcohol-related mental health admissions and Alcohol-specific deaths - there is a page containing three tables that go in to the detail of that indicator.
 
+<br/>
 
+Each indicator detail page contains three tabs.
+
+1. **EASR** This tab shows the EASR values for all the years available for each IZ.
+  - In this table, the rules for highlighting are the same as with the IZ profile table.
+  - Values in the 75^th^ percentile or above for all NHS GGC IZs for that year are highlighted <span class="highlight_colour" style="background-color: #F3DE90">like this</span>.
+  - Once the table is filtered, values which are in the 75^th^ percentile or above for the currently displayed rows have an open, red circle \ <span style="color: #B8100D"> `r shiny::icon("circle-o")` </span> \ to their left.
+2. **Change from Initial Year** This tab shows the rate of change of each EASR value relative to the first year of available data for each IZ.
+  - The highlightiong rules are the same as the rate of change columns in the IZ profile table.
+  - Each cell is coloured based on the relative positive (+ve) or negative (-ve) change:
+    + <span class="larger_smaller_nums" style="background-color: #d26146">large +ve change</span> 
+    + <span class="larger_smaller_nums" style="background-color: #EFC6BD">small +ve change</span>
+    + <span class="larger_smaller_nums" style="background-color: #DBECC1">small -ve change</span> 
+    + <span class="larger_smaller_nums" style="background-color: #9CC951">large -ve change</span>
+  - The first year is ommited and displayed as a dash "-" since no rate of change can be calculated for it.
+  - If the first year of data is of value 0, then no following years can have a rate of change calculated relative to it. So when that is the case every cell in that row will have a dash "-".
+3. **Year on Year change** 
+  - This shows rate of change but relative the the immediately previous year, rather than the first year.
+  - The formatting and colouring rules are the same as above.
+  - Similarly to the above, the intial year values will be ommites and shown as a dash "-".
+  - If any given year has a value of zero then the following year will not have a rate of change relative to that year, and so will be a dash "-".
+
+<br/>
+
+There is a HSCP selector at the top of each indicator detail page which can be used to filter all three tabs.
+
+- Note that selecting **(All)** in the HSCP selector does not function as it should. To return to the unfiltered view, delete anything in the filter box using backspace.
+- Because these filter boxes are filtering multiple tables, their response is quite slow. Please give 5-10 seconds for them to respond when changing the filter.
+
+<br/>
+
+There is a download button at the top of each indicator detail page.
+
+- This will be in .xlsx format
+- The download will be for all three tabs on that page. Each tab will be a separate, appropriately named tab in the .xlsx file.
+- The download will be for all rows, rather than any filtered state that the tables may be in at the point of the download.
 
 Profile {data-icon="fa-list"}
 =====================================
