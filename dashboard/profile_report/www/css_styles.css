@@ -196,6 +196,19 @@
   color: #A32E14;
 }
 
+.profile_container {
+  overflow-y: scroll;
+  height: auto;
+}
+
+
+.profile_total_container {
+  height: 100%;
+}
+
+.profile_inner_container {
+ height: 87%;
+}
 
 /*------------------------------------------*/
 /*------------------------------------------*/

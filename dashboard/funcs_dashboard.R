@@ -3,7 +3,7 @@
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 make_val_column <- function(col_data,
                             col_name = "Value",
-                            header_str = "EASR",
+                            header_str = "EASR (per 10,000 pop)",
                             cell_class = "border-left"){
   abs_max_vals <- get_abs_p_m_max(col_data)
   
@@ -196,7 +196,7 @@ val_cell_js <- function(){
                           varIcon += '<i class=\"fa fa-fw\" aria-hidden=\"true\"></i>';
                       }
                   }
-                  return makeInDiv(varIcon + makeInDiv(currCellVal.toFixed(2), 'roc_col'), 'roc_col_left')
+                  return makeInDiv(varIcon + makeInDiv(currCellVal.toFixed(1), 'roc_col'), 'roc_col_left')
                 }")
   cell_JS
 }

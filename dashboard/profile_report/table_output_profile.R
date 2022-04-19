@@ -17,13 +17,18 @@ profile_table <- function(all_data, shared_table, all_default_cols=TRUE){
   big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
   
   
-  col_names <- table_data %>% names
+  col_names <- table_data %>% colnames
   indicators <- Filter(function(x) grepl("^(val\\|\\|)", x), col_names) %>% 
     str_match_all("[^\\|]+") %>% 
     map_chr(2)
-  
+
+  default_sorting <- list()
+   
   if (all_default_cols){
     my_col_defs <- default_cols_full()
+    # sort table by first value column show
+    ha_admissions_val_col <- col_names[[4]]
+    default_sorting[[ha_admissions_val_col]] <- "desc"
   } else {
     my_col_defs <- default_cols_area()
   }
@@ -51,8 +56,8 @@ profile_table <- function(all_data, shared_table, all_default_cols=TRUE){
       colGroup(name = paste(indicator, year_str, sep = "||"), columns = c(val_col, roc_col),
                header=col_group_header)
   }
-
   
+
    
   reactable(shared_table,
             selection = "multiple",
@@ -63,6 +68,7 @@ profile_table <- function(all_data, shared_table, all_default_cols=TRUE){
             compact = TRUE,
             pagination = FALSE,
             columnGroups = my_col_groups,
+            defaultSorted = default_sorting,
             details =   colDef(
               show=TRUE,
               details = details_generator(all_data, populations, population_year))

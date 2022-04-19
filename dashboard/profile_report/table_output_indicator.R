@@ -12,7 +12,7 @@ indicator_table <- function(data,
   year_cols <- names(data) %>% .[!(. %in% id_cols)]
   latest_year <- year_cols %>% tail(1)
   
-  col_defs <- default_cols_full(width_stretch=0.9)
+  col_defs <- default_cols_full(width_stretch=1.4)
   
   # For the column group label over all the year columns
   year_type <- year_cols[[1]] %>% find_year_type()
@@ -53,9 +53,9 @@ indicator_table <- function(data,
       
       subhead <- "error"
       if (ini_or_year_on_year=="ini"){
-        subhead <- "Rel. Initial Year"
+        subhead <- "% change"
       } else if (ini_or_year_on_year=="year_on_year"){
-        subhead <- "Rel. Previous Year"
+        subhead <- "% change"
       }
       
       col_defs[[col_name]] <-  make_roc_column(data[col_name],
@@ -107,9 +107,9 @@ make_change_column <- function(col_data){
 # Header string for year type
 find_year_type <- function(sample_year_str){
   if (grepl("to", sample_year_str)){
-    "3 Financial-Year Aggregates"
+    "3-Year Aggregate (Financial Years)"
   } else if (grepl("-", sample_year_str)){
-    "3 Calendar-Year Aggregates"
+    "3-Year Aggregate (Calendar Years)"
   } else if (grepl("/", sample_year_str)){
     "Financial Year"
   } else {

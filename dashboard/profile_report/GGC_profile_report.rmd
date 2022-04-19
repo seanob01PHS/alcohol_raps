@@ -45,11 +45,19 @@ data <-  read.xlsx(paste0(data_dir, "GGC Alcohol Data.xlsx"), 1) %>%
   select(-lookup)
 
 
+# data_2 <- read_csv(here("output", "profile_annual_data", "profile.csv")) %>% 
+#   select(-lookup)
+
 data <- data %>% process_year()
 #selecting the rows in the right order
 data <- data[c("iz", "iz_name", "year_start", "year_str", "hscp", "indicator", "pop", "number", "rate")]
 
+# Latest financial year (siunce "/"" is arranaged last) displayed in notes page
+latest_year_str <- data %>% arrange(year_str) %>% pull(year_str) %>% unique %>% tail(1)
+
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
+
+
 ```
 
 Notes {data-icon="fa-info-circle"}
@@ -62,17 +70,45 @@ row {.tabset}
 
 #### **Alcohol Harms Report**
 #### **NHS Greater Glasgow and Clyde**
+##### Time period: up to end of `r latest_year_str`
 ##### Report date: `r format(Sys.time(), "%d %b %Y")`
 
-<br/>
+<div class = "warning_box">
+Management Information only, not for onward distribution
+This information has been released for management information purposes only. The data have not been adjusted to protect against potential disclosure risks and may contain information which enables (perhaps with the aid of further knowledge of the topic) an individual patient to be identified. Please ensure circulation is restricted and that patient confidentiality is not compromised. For further guidance see NSS’s Statistical Disclosure Control Protocol http://www.isdscotland.org/Products-and-Services/Data-Protection-and-Confidentiality/#smallNumbers. Please contact phs.list.glasgow@nhs.net if you have any queries regarding this.
+</div>
 
-The tables in the **Profile** page shows information at interzone level for various alcohol related harms indicators.
-
-(1) **Alcohol Specific Deaths:** the time periods for this indicator are 3 calendar year aggregates.
-(2) **Alcohol-related mental health admissions:** the time periods for this indicator are 3 financial year aggregates.
-(3) **Alcohol-related hospital admissions:** the time periods for this indicator are single financial years.  
 
 <br/>
+
+
+#### <span style="text-decoration:underline">**About**</span>
+This dashboard provides information on various alcohol harms indicators at Intermediate Zone (IZ):
+
+ - Alcohol-related hospital admissions 
+ - Alcohol-related mental health admissions
+ - Alcohol-specific deaths
+
+All values shown are the **European Age-sex Standardised Rate (EASR) per 10,000 population**. Using this allows the comparison of areas with different age and sex distributions and also when the distribution changes over time.
+
+
+<br/>
+
+
+#### <span style="text-decoration:underline">**How to use**</span>
+Select the buttons at the top of the dashboard to view the different pages available:
+
+ - **Profile** – shows the latest data for each indicator (see ‘Profile Notes’ for more information).
+ - **Hospital Admissions** – shows the trend in alcohol-related hospital admissions (see ‘Indicator Detail Notes’ for more information).
+ - **Mental Health Admissions** – shows the trend in alcohol-related mental health admissions (see ‘Indicator Detail Notes’ for more information).
+ - **Deaths** – shows the trend in alcohol-specific deaths (see ‘Indicator Detail Notes’ for more information).
+ 
+
+
+<br/>
+
+
+
 
 #### <span style="text-decoration:underline">**Data Notes**</span>
 
@@ -82,6 +118,7 @@ Source: SMR01, Public Health Scotland
 (1) The number of inpatient and day case stays where an alcohol-related condition is recorded in any of the 6 diagnostic positions.
 (2) Alcohol-related condition ICD-10 diagnosis codes: E24.4, E51.2, F10, G31.2, G62.1, G72.1, I42.6, K29.2, K70, K85.2, K86.0, O35.4, P04.3, Q86.0, R78.0, T51.0, T51.1, T51.9, X45, X65, Y15, Y57.3, Y90, Y91, Z50.2, Z71.4, Z72.1.
 (3) Includes both elective and non-elective admissions.
+(4) The time periods are single financial years.
 
 
 **Alcohol-related mental health admissions**  
@@ -89,6 +126,7 @@ Source: SMR04, Public Health Scotland
 
 (1) The number of psychiatric inpatient and day case stays where an alcohol-related condition is recorded in any of the 6 diagnostic positions.
 (2) Alcohol-related condition ICD-10 diagnosis codes: E24.4, E51.2, F10, G31.2, G62.1, G72.1, I42.6, K29.2, K70, K85.2, K86.0, O35.4, P04.3, Q86.0, R78.0, T51.0, T51.1, T51.9, X45, X65, Y15, Y57.3, Y90, Y91, Z50.2, Z71.4, Z72.1.
+(3) The time periods are 3-year aggregate totals (financial years).
 
 
 **Alcohol-specific deaths**  
@@ -96,15 +134,9 @@ Source: Deaths, National Records Scotland
 
 (1) The number of deaths where the underlying cause of death is related to alcohol consumption.
 (2) Underlying cause of death ICD-10 codes: E24.4, F10, G31.2, G62.1, G72.1, I42.6, K29.2, K70, K85.2, K86.0, Q86.0, R78.0, X45, X65, Y15
+(3) The time periods are 3-year aggregate totals (calendar years).
 
 <br/>
-
-
-
-<div class = "warning_box">
-Management Information only, not for onward distribution
-This information has been released for management information purposes only. The data have not been adjusted to protect against potential disclosure risks and may contain information which enables (perhaps with the aid of further knowledge of the topic) an individual patient to be identified. Please ensure circulation is restricted and that patient confidentiality is not compromised. For further guidance see NSS’s Statistical Disclosure Control Protocol http://www.isdscotland.org/Products-and-Services/Data-Protection-and-Confidentiality/#smallNumbers. Please contact phs.list.glasgow@nhs.net if you have any queries regarding this.
-</div>
 
 
 
@@ -116,108 +148,94 @@ This information has been released for management information purposes only. The
 
 <br/>
 
-The profile page is intended to give an overview of the alcohol related harms indicators for HSCPs and Interzones (IZs).  
-The two tables under the tabs **HSCP profile** and **IZ Profile** show EASR rates (per 10,000 population) for the indicators and the respective rate of change of those indicators compared to the previous period.
+This page contains the alcohol harms profile by Intermediate Zone (IZ) and also by Health & Social Care Partnership (HSCP). Select the **IZ Profile** or **HSCP Profile** tab to view.
 
-<br/>
+The profiles show the **European Age-sex Standardised Rate (EASR) per 10,000 population** for each indicator as well as the **rate of change (%)** compared to the previous time period.
 
-##### **HSCP Profile**
-
-This table shows rates and rates of change of indicators for the HSCPs within NHS GGC and for NHS GGC and Scotland as a whole.
-
-- Click the download button to export the data shown in **HSCP Profile** as an excel table.
-- The table will colour cells in EASR columns light orange <span class="highlight_colour" style="background-color: #F3DE90">like this</span> to indicate data points that are in the 75^th^ percentile or above for all NHS GGC HSCPs
 
 <br/>
 
 
-##### **IZ Profile**
+#### <span style="text-decoration:underline">**Overall**</span>
 
-This table shows rates and rates of change of indicators for all IZs within NHS GGC.
-
-- Use the HSCP selector at the top of the page or the search bars above the two leftmost columns to filter the data.
-- Note that selecting **(All)** in the HSCP selector does not function as it should. To return to the unfiltered view, delete anything in the filter box using backspace.
-
-
-There is a download button above the **IZ Profile** table.
-
-- The download will be all rows in the table, rather than any filtered state that the tables may be in at the point of the download.
-
-Like with the **HSCP profile**, this profile also colours data cells to indicate rows in a high percentile of the data.   
-
-- In the initial data cells in the 75^th^ percentile or above for all NHS GGC IZs will be coloured light orange <span class="highlight_colour" style="background-color: #F3DE90">like this</span>.
-- Once the data is filtered, an open red circle \ <span style="color: #B8100D"> `r shiny::icon("circle-o")` </span> \ will also be shown to the left of the data to signify if that value is in the 75^th^ percentile or above for the filtered data. If you filter for a specific HSCP this will help identify outliers within that HSCP.
-
-<br/>
-
-**The following applies to both profile tables**
-
-- Click on the column headers to sort by that column ascending and again to sort descending.  
-- Shift-Click on the the column headers to remove that ordering.
-
-
-- The rate of change columns are coloured based on the relative positive (+ve) or negative (-ve) values in that column:
+ - EASR cells are coloured light orange <span class="highlight_colour" style="background-color: #F3DE90">like this</span> to indicate values that are in the 75^th^ percentile or above for all NHS GGC.
+ - Rate of change (% change) cells are coloured based on the relative positive (+ve) or negative (-ve) values in that column:
     + <span class="larger_smaller_nums" style="background-color: #d26146">large +ve change</span> 
     + <span class="larger_smaller_nums" style="background-color: #EFC6BD">small +ve change</span>
     + <span class="larger_smaller_nums" style="background-color: #DBECC1">small -ve change</span> 
     + <span class="larger_smaller_nums" style="background-color: #9CC951">large -ve change</span>
+    + A dash "–" in the rate of change column indicates that the previous value was zero so no % change can be calculated.
+ - **Sorting** – the table default is that rows are sorted by alcohol-related hospital admissions in descending order. Click on any **column header** to sort by that column in ascending order and click it again to sort in descending order.
+ - **Comparisons** – click on the **black triangle** at the start of each row to display more details including:
+    + Comparisons in rates relative to Scotland and NHS GGC. The cells for this are coloured to the same scheme as the rate of change columns.
+    +	The most recent population of that intermediate zone.
+ - **Download Data** – click the Download Data button to export the data shown in the profile into Excel. The data will be all rows in the table, rather than any filtered state that the tables may be in at the point of the download.
 
-    + A dash -- in the rate of change column indicates that the previous value was zero so no relative change can be calculated.   
+<br/>
+
+#### <span style="text-decoration:underline">**IZ Profile**</span>
+
+ - The default table shows all Intermediate Zones (IZs) in NHS GGC.
+ - **Filter by HSCP** – the click into the HSCP search box at the top of the page and select an HSCP, multiple values can be selected. Use the backspace key to delete any chosen values. Note that selecting ‘(All)’ in the HSCP search box does not function as it should. To return to the default unfiltered view, delete all values shown in the filter box using the backspace key.
+ - **Find an IZ** – click into either search box above the two leftmost columns and type to find a particular IZ by code or name.
+ - EASR cells are coloured light orange <span class="highlight_colour" style="background-color: #F3DE90">like this</span> to indicate values that are in the 75^th^ percentile or above for all NHS GGC.
+ - Once the data is filtered, a red circle \ <span style="color: #B8100D"> `r shiny::icon("circle-o")` </span> \ will show values that are in the 75th percentile or above for the filtered data. If you filter for a specific HSCP this will help identify outliers within that HSCP.
 
 
 
-- Click on the black triangle at the start of each row to display more details including
-    - Comparisons in rates relative to Scotland and NHS GGC. The cells for this are coloured to the same scheme as the rate of change columns.
-    - The most recent population of that intermediate zone.  
+
 
 
 ### Indicator Detail Notes
 
 #### **Alcohol Harms Report**
 #### **NHS Greater Glasgow and Clyde**
-#### Information for using the 'Hospital Admissions', 'Mental-Health Admissions' and 'Deaths' pages
+#### Information for using the 'Hospital Admissions', 'Mental Health Admissions' and 'Deaths' pages
 
 <br/>
 
-For each indicator - Alcohol-related hospital admissions, Alcohol-related mental health admissions and Alcohol-specific deaths - there is a page containing three tables that go in to the detail of that indicator.
+These pages contains trends in the alcohol harms indicators by Intermediate Zone (IZ).
+
+Each page copntains  three tabs:
+
+ - **EASR** – the trend in European Age-sex Standardised Rate (EASR) per 10,000 population.
+ - **Change from Initial Year** – the rate of change (%) relative to the first time period available.
+ - **Year on Year change** – the rate of change (%) relative to the time period immediately before the current one.
 
 <br/>
 
-Each indicator detail page contains three tabs.
 
-1. **EASR** This tab shows the EASR values for all the years available for each IZ.
-  - In this table, the rules for highlighting are the same as with the IZ profile table.
-  - Values in the 75^th^ percentile or above for all NHS GGC IZs for that year are highlighted <span class="highlight_colour" style="background-color: #F3DE90">like this</span>.
-  - Once the table is filtered, values which are in the 75^th^ percentile or above for the currently displayed rows have an open, red circle \ <span style="color: #B8100D"> `r shiny::icon("circle-o")` </span> \ to their left.
-2. **Change from Initial Year** This tab shows the rate of change of each EASR value relative to the first year of available data for each IZ.
-  - The highlightiong rules are the same as the rate of change columns in the IZ profile table.
-  - Each cell is coloured based on the relative positive (+ve) or negative (-ve) change:
+#### <span style="text-decoration:underline">**Overall**</span>
+
+ - The default table shows all Intermediate Zones (IZs) in NHS GGC.
+ - **Filter by HSCP** – click into the HSCP search box at the top of the page and select an HSCP, multiple values can be selected. Use the backspace key to delete any chosen values. Note that selecting ‘(All)’ in the HSCP search box does not function as it should. To return to the default unfiltered view, delete all values shown in the filter box using the backspace key.
+ - **Find an IZ** – click into either search box above the two leftmost columns and type to find a particular IZ by code or name.
+ - **Sorting** – the table default is that rows are sorted by alcohol-related hospital admissions in descending order. Click on any column header to sort by that column in ascending order and click it again to sort in descending order.
+ - **Download Data** – click the Download Data button to export the data shown in the profile into Excel. The data will be all rows in the table, rather than any filtered state that the tables may be in at the point of the download. The Excel file will contain three worksheets, one for each tab.
+
+<br/>
+
+
+#### <span style="text-decoration:underline">**EASR**</span>
+
+ - EASR cells are coloured light orange <span class="highlight_colour" style="background-color: #F3DE90">like this</span> to indicate values that are in the 75th percentile or above for all NHS GGC 
+ - Once the data is filtered, a red circle \ <span style="color: #B8100D"> `r shiny::icon("circle-o")` </span> \ will show values that are in the 75th percentile or above for the filtered data. If you filter for a specific HSCP this will help identify outliers within that HSCP.
+
+<br/>
+
+
+#### <span style="text-decoration:underline">**Change from Initial Year / Year on Year change**</span>
+
+ - Rate of change (% change) cells are coloured based on the relative positive (+ve) or negative (-ve) values in that column:
     + <span class="larger_smaller_nums" style="background-color: #d26146">large +ve change</span> 
     + <span class="larger_smaller_nums" style="background-color: #EFC6BD">small +ve change</span>
     + <span class="larger_smaller_nums" style="background-color: #DBECC1">small -ve change</span> 
     + <span class="larger_smaller_nums" style="background-color: #9CC951">large -ve change</span>
-  - The first year is ommited and displayed as a dash "-" since no rate of change can be calculated for it.
-  - If the first year of data is of value 0, then no following years can have a rate of change calculated relative to it. So when that is the case every cell in that row will have a dash "-".
-3. **Year on Year change** 
-  - This shows rate of change but relative the the immediately previous year, rather than the first year.
-  - The formatting and colouring rules are the same as above.
-  - Similarly to the above, the intial year values will be ommites and shown as a dash "-".
-  - If any given year has a value of zero then the following year will not have a rate of change relative to that year, and so will be a dash "-".
+ - The rate of change for the first year is omitted and displayed as a dash "–" since there is no previous year.
+ - In the Change from Initial Year table, if the EASR for the first year has a value of 0, then none of the following years can have a rate of change calculated relative to it and so every entry in that row will have a dash "–".
 
-<br/>
 
-There is a HSCP selector at the top of each indicator detail page which can be used to filter all three tabs.
 
-- Note that selecting **(All)** in the HSCP selector does not function as it should. To return to the unfiltered view, delete anything in the filter box using backspace.
-- Because these filter boxes are filtering multiple tables, their response is quite slow. Please give 5-10 seconds for them to respond when changing the filter.
-
-<br/>
-
-There is a download button at the top of each indicator detail page.
-
-- This will be in .xlsx format
-- The download will be for all three tabs on that page. Each tab will be a separate, appropriately named tab in the .xlsx file.
-- The download will be for all rows, rather than any filtered state that the tables may be in at the point of the download.
 
 Profile {data-icon="fa-list"}
 =====================================
@@ -242,48 +260,23 @@ row {.tabset}
 iz_table <- iz_data(all_table_data)
 big_area_table <- big_area_data(all_table_data) %>% arrange(iz %in% big_areas)
 
-download_table_iz <- table_for_download_profile(iz_table) %>% mutate_if(is.numeric, function(x) round(x, digits=2))
-
 shared_table_iz_main <- SharedData$new(iz_table, group="profile_table", key = ~iz)
-shared_table_iz_download <- SharedData$new(download_table_iz, group="profile_table", key = ~iz)
 ```
 
-### HSCP Profile
 
-<div class = "filter_button_wrapper">
-<div class = "download_button_box">
-
-```{r hscp_profile_download_btn}
-download_this(
-    table_for_download_profile(big_area_table),
-    output_name = "Alcohol_harms_profile_hscps",
-    output_extension = ".xlsx",
-    button_label = "Download data as xlsx",
-    button_type = "primary",
-    has_icon = TRUE,
-    icon = "fa fa-save"
-  )
-```
-
-</div>
-</div>
-
-
-```{r reactable_big_area_display_profile}
-profile_table(big_area_table, big_area_table, all_default_cols=FALSE)
-```
 
 ### IZ Profile
 
+<div class = "profile_total_container">
 <div class = "filter_button_wrapper">
 <div class = "download_button_box">
 
 ```{r iz_profile_download_btn}
 download_this(
-    download_table_iz,
+    table_for_download_profile(iz_table),
     output_name = "Alcohol_harms_profile_izs",
     output_extension = ".xlsx",
-    button_label = "Download data as xlsx",
+    button_label = "Download Data",
     button_type = "primary",
     has_icon = TRUE,
     icon = "fa fa-save"
@@ -300,11 +293,43 @@ filter_select("auto", "HSCP", shared_table_iz_main, ~hscp, multiple=TRUE)
 </div>
 </div>
 
-
-
+<div class = "profile_inner_container">
 ```{r reactable_display_profile}
 profile_table(iz_table, shared_table_iz_main)
 ```
+</div>
+</div>
+
+### HSCP Profile
+
+<div class = "filter_button_wrapper">
+<div class = "download_button_box">
+
+```{r hscp_profile_download_btn}
+download_this(
+    table_for_download_profile(big_area_table) %>% 
+      rename(area = iz) %>% 
+      select(-`iz name`),
+    output_name = "Alcohol_harms_profile_hscps",
+    output_extension = ".xlsx",
+    button_label = "Download Data",
+    button_type = "primary",
+    has_icon = TRUE,
+    icon = "fa fa-save"
+  )
+```
+
+</div>
+</div>
+
+<div class = "profile_inner_container">
+```{r reactable_big_area_display_profile}
+profile_table(big_area_table, big_area_table, all_default_cols=FALSE)
+```
+</div>
+
+Hospital Admissions {data-icon="fa-table"}
+=====================================
 
 
 ```{r indicator_setup, include=FALSE}
@@ -338,7 +363,7 @@ output_indicator <-
        ~ list("download_btn" = download_this(..2,
                                              output_name = ..1,
                                              output_extension = ".xlsx",
-                                             button_label = "Download data as xlsx",
+                                             button_label = "Download Data",
                                              button_type = "primary",
                                              has_icon = TRUE,
                                              icon = "fa fa-save"),
@@ -366,11 +391,6 @@ output_indicator <-
 names(output_indicator) <- indicators
 
 ```
-
-
-
-Hospital Admissions {data-icon="fa-table"}
-=====================================
 
 row {data-height=30}
 --------------------------------------------------
@@ -436,7 +456,7 @@ output_indicator[[cur_indicator]] %>%
 
 
 
-Mental-Health Admissions {data-icon="fa-table"}
+Mental Health Admissions {data-icon="fa-table"}
 =====================================
 
 row {data-height=30}
