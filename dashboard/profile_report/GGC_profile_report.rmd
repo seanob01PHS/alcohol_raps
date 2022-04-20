@@ -40,13 +40,20 @@ source(here("dashboard", "funcs_dashboard.R"))
 
 source(here("dashboard", "warning_text.R"))
 
-data_dir <- "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/output/"
-data <-  read.xlsx(paste0(data_dir, "GGC Alcohol Data.xlsx"), 1) %>% 
-  select(-lookup)
-
-
-# data_2 <- read_csv(here("output", "profile_annual_data", "profile.csv")) %>% 
+# data_dir <- "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/output/"
+# data <-  read.xlsx(paste0(data_dir, "GGC Alcohol Data.xlsx"), 1) %>% 
 #   select(-lookup)
+
+
+data <- read_csv(here("output", "profile_annual_data", "profile.csv")) %>% 
+   select(-lookup)
+
+# replace hscp with locality 
+# we are mixing hscp and hscp_locality here because Glasgow City is too large.
+# we split only that hscp in to its localities
+data <- data %>% 
+  mutate(hscp = hscp_locality) %>% 
+  select(-hscp_locality)
 
 data <- data %>% process_year()
 #selecting the rows in the right order
@@ -211,7 +218,8 @@ Each page copntains  three tabs:
  - **Filter by HSCP** – click into the HSCP search box at the top of the page and select an HSCP, multiple values can be selected. Use the backspace key to delete any chosen values. Note that selecting ‘(All)’ in the HSCP search box does not function as it should. To return to the default unfiltered view, delete all values shown in the filter box using the backspace key.
  - **Find an IZ** – click into either search box above the two leftmost columns and type to find a particular IZ by code or name.
  - **Sorting** – the table default is that rows are sorted by alcohol-related hospital admissions in descending order. Click on any column header to sort by that column in ascending order and click it again to sort in descending order.
- - **Download Data** – click the Download Data button to export the data shown in the profile into Excel. The data will be all rows in the table, rather than any filtered state that the tables may be in at the point of the download. The Excel file will contain three worksheets, one for each tab.
+ - **HSCP Table** – below each table showing IZ data, there is a shorter table showing the same data for HSCPs within GGC, GGC total and Scotland total.
+ - **Download Data** – click the Download Data button to export the data shown in the profile into Excel. The data will be all rows in the table, rather than any filtered state that the tables may be in at the point of the download. The Excel file will contain six worksheets, an IZ and HSCP relating to each tab.
 
 <br/>
 
@@ -344,7 +352,9 @@ names(indicator_data) <- indicators
 
 # Making shared versions of the indicator data
 indicator_data_shared <- indicator_data %>%
-  imap(function(data, iname) data %>% map(~ .x %>% 
+  imap(function(data, iname) data %>% map(~ .x %>%
+                    # get first (iz not hscp) table
+                    .[[1]] %>% 
                     # add sparkline to shared data
                     mutate(sparkline=NA) %>% 
                     SharedData$new( key=~iz, group = iname)))
@@ -353,14 +363,44 @@ demo_df_regular <- indicator_data %>% .[[1]] %>% .[[1]]
 demo_df_shared <- indicator_data_shared %>% .[[1]] %>% .[[1]]
 
 
+download_data_names <- c("EASR", "(%) Change Initial", "(%) Change Rolling") %>% 
+  rep(each = 2) %>% 
+  paste(., c("iz", "hscp") %>% 
+          rep(3), sep = "_")
+
+
+# Helper function that roundsj download data and
+# multiplies changes by 100
+format_download <- function(data, iname){
+
+    if(grepl("Change", iname)){
+      data <- data %>%
+        mutate(across(where(is.numeric), function(x) x*100))
+    }
+    
+    data <- data %>%
+      mutate(across(where(is.numeric), function(x) round(x, 1)))
+}
+  
+
+download_data <- indicator_data %>%
+  map(~flatten(.x)) %>% 
+  map(~set_names(.x, nm = download_data_names)) %>% 
+  map(~.x %>%
+        imap(~format_download(.x, .y))
+  )
+
+
+
 # all output (tables and download buttons)
 # wrapped up in to lists
 output_indicator <- 
   pmap(list(indicators,
             indicator_data,
-            indicator_data_shared),
+            indicator_data_shared,
+            download_data),
        
-       ~ list("download_btn" = download_this(..2,
+       ~ list("download_btn" = download_this(..4,
                                              output_name = ..1,
                                              output_extension = ".xlsx",
                                              button_label = "Download Data",
@@ -368,22 +408,47 @@ output_indicator <-
                                              has_icon = TRUE,
                                              icon = "fa fa-save"),
               
-              "vals_table" = indicator_table(..2[["vals"]],
-                                             ..3[["vals"]],
-                                             type = "val",
-                                             sparkline_type = "line"),
-       
-              "change_ini_table" = indicator_table(..2[["change_ini"]],
-                                                   ..3[["change_ini"]],
-                                                   type = "change",
-                                                   ini_or_year_on_year = "ini",
-                                                   sparkline_type = "bar"),
+              # --------------------------------------------------------
               
-              "change_rolling_table" = indicator_table(..2[["change_rolling"]],
-                                                       ..3[["change_rolling"]],
-                                                       type = "change",
-                                                       ini_or_year_on_year = "year_on_year",
-                                                       sparkline_type = "bar")
+              "vals_table_iz" = indicator_table(..2[["vals"]][["iz"]],
+                                                ..3[["vals"]],
+                                                type = "val",
+                                                sparkline_type = "line"),
+              
+              "vals_table_hscp" = indicator_table(..2[["vals"]][["hscp"]],
+                                                  type = "val",
+                                                  sparkline_type = "line",
+                                                  all_initial_cols = FALSE,
+                                                  is_being_filtered = FALSE),
+              
+              # --------------------------------------------------------
+              
+              "change_ini_table_iz" = indicator_table(..2[["change_ini"]][["iz"]],
+                                                      ..3[["change_ini"]],
+                                                      type = "change",
+                                                      ini_or_year_on_year = "ini",
+                                                      sparkline_type = "bar"),
+              
+              "change_ini_table_hscp" = indicator_table(..2[["change_ini"]][["hscp"]],
+                                                        type = "change",
+                                                        ini_or_year_on_year = "ini",
+                                                        sparkline_type = "bar",
+                                                        all_initial_cols = FALSE,
+                                                        is_being_filtered = FALSE),
+              # --------------------------------------------------------
+              
+              "change_rolling_table_iz" = indicator_table(..2[["change_rolling"]][["iz"]],
+                                                          ..3[["change_rolling"]],
+                                                          type = "change",
+                                                          ini_or_year_on_year = "year_on_year",
+                                                          sparkline_type = "bar"),
+              
+              "change_rolling_table_hscp" = indicator_table(..2[["change_rolling"]][["hscp"]],
+                                                            type = "change",
+                                                            ini_or_year_on_year = "year_on_year",
+                                                            sparkline_type = "bar",
+                                                            all_initial_cols = FALSE,
+                                                            is_being_filtered = FALSE)
        )
   )
 
@@ -396,24 +461,18 @@ row {data-height=30}
 --------------------------------------------------
 
 <div class = "filter_button_wrapper">
-
 <div class = "download_button_box">
-
 ```{r ha_download_btn}
 cur_indicator <- "Alcohol-related hospital admissions"
 
 output_indicator[[cur_indicator]] %>% 
   .[["download_btn"]]
 ```
-
 </div>
-
 <div class = "filter_select_box">
-
 ```{r ha_hscp_selector}
 filter_select("select_ha", "HSCP", indicator_data_shared[[cur_indicator]][["vals"]], ~hscp, multiple=TRUE)
 ```
-
 </div>
 
 ```{r warn_1}
@@ -427,33 +486,65 @@ row {.tabset}
 
 ### EASR
 
-```{r ha_vals}
+<div class = "indicator_double_table_container">
+<div class = "indicator_inner_upper_container">
+```{r ha_vals_iz}
 
 output_indicator[[cur_indicator]] %>% 
-  .[["vals_table"]]
+  .[["vals_table_iz"]]
 
 ```
+</div>
+<div class = "indicator_inner_lower_container">
+```{r ha_vals_hscp}
+  output_indicator[[cur_indicator]] %>% 
+  .[["vals_table_hscp"]]
+```
+</div>
+</div>
+
 
 ### Change from Initial Year
 
-```{r ha_change_ini}
+<div class = "indicator_double_table_container">
+<div class = "indicator_inner_upper_container">
+```{r ha_change_ini_iz}
 
 output_indicator[[cur_indicator]] %>% 
-  .[["change_ini_table"]]
+  .[["change_ini_table_iz"]]
 
 ```
+</div>
+<div class = "indicator_inner_lower_container">
+```{r ha_change_ini_hscp}
+
+output_indicator[[cur_indicator]] %>% 
+  .[["change_ini_table_hscp"]]
+
+```
+</div>
+</div>
 
 ### Year on Year Change
 
-```{r ha_change_rolling}
+<div class = "indicator_double_table_container">
+<div class = "indicator_inner_upper_container">
+```{r ha_change_rolling_iz}
 
 output_indicator[[cur_indicator]] %>% 
-  .[["change_rolling_table"]]
+  .[["change_rolling_table_iz"]]
 
 ```
+</div>
+<div class = "indicator_inner_lower_container">
+```{r ha_change_rolling_hscp}
 
+output_indicator[[cur_indicator]] %>% 
+  .[["change_rolling_table_hscp"]]
 
-
+```
+</div>
+</div>
 
 
 Mental Health Admissions {data-icon="fa-table"}
@@ -463,24 +554,18 @@ row {data-height=30}
 --------------------------------------------------
 
 <div class = "filter_button_wrapper">
-
 <div class = "download_button_box">
-
 ```{r mh_download_btn}
 cur_indicator <- "Alcohol-related mental health admissions"
 
 output_indicator[[cur_indicator]] %>% 
   .[["download_btn"]]
 ```
-
 </div>
-
 <div class = "filter_select_box">
-
 ```{r mh_hscp_selector}
 filter_select("select_ha", "HSCP", indicator_data_shared[[cur_indicator]][["vals"]], ~hscp, multiple=TRUE)
 ```
-
 </div>
 
 ```{r warn_2}
@@ -495,31 +580,67 @@ row {.tabset}
 
 ### EASR
 
-```{r mh_vals}
+<div class = "indicator_double_table_container">
+<div class = "indicator_inner_upper_container">
+```{r mh_vals_iz}
 
-output_indicator[[cur_indicator]] %>% 
-  .[["vals_table"]]
+ output_indicator[[cur_indicator]] %>% 
+   .[["vals_table_iz"]]
 
 ```
+</div>
+<div class = "indicator_inner_lower_container">
+```{r mh_vals_hscp}
+  output_indicator[[cur_indicator]] %>% 
+  .[["vals_table_hscp"]]
+```
+</div>
+</div>
+
 
 ### Change from Initial Year
 
-```{r mh_change_ini}
+<div class = "indicator_double_table_container">
+<div class = "indicator_inner_upper_container">
+```{r mh_change_ini_iz}
 
 output_indicator[[cur_indicator]] %>% 
-  .[["change_ini_table"]]
+  .[["change_ini_table_iz"]]
 
 ```
+</div>
+<div class = "indicator_inner_lower_container">
+```{r mh_change_ini_hscp}
+
+output_indicator[[cur_indicator]] %>% 
+  .[["change_ini_table_iz"]]
+
+```
+</div>
+</div>
+
 
 ### Year on Year Change
 
-```{r mh_change_rolling}
+
+<div class = "indicator_double_table_container">
+<div class = "indicator_inner_upper_container">
+```{r mh_change_rolling_iz}
 
 output_indicator[[cur_indicator]] %>% 
-  .[["change_rolling_table"]]
+  .[["change_rolling_table_iz"]]
 
 ```
+</div>
+<div class = "indicator_inner_lower_container">
+```{r mh_change_rolling_hscp}
 
+output_indicator[[cur_indicator]] %>% 
+  .[["change_rolling_table_iz"]]
+
+```
+</div>
+</div>
 
 
 Deaths {data-icon="fa-table"}
@@ -530,24 +651,18 @@ row {data-height=30}
 --------------------------------------------------
 
 <div class = "filter_button_wrapper">
-
 <div class = "download_button_box">
-
 ```{r deaths_download_btn}
 cur_indicator <- "Alcohol-specific deaths"
 
 output_indicator[[cur_indicator]] %>% 
   .[["download_btn"]]
 ```
-
 </div>
-
 <div class = "filter_select_box">
-
 ```{r deaths_hscp_selector}
 filter_select("select_ha", "HSCP", indicator_data_shared[[cur_indicator]][["vals"]], ~hscp, multiple=TRUE)
 ```
-
 </div>
 
 ```{r warn_3}
@@ -561,31 +676,69 @@ row {.tabset}
 
 ### EASR
 
-```{r deaths_vals}
+
+<div class = "indicator_double_table_container">
+<div class = "indicator_inner_upper_container">
+```{r deaths_vals_iz}
 
 output_indicator[[cur_indicator]] %>% 
-  .[["vals_table"]]
+  .[["vals_table_iz"]]
 
 ```
+</div>
+<div class = "indicator_inner_lower_container">
+```{r deaths_vals_hscp}
+
+output_indicator[[cur_indicator]] %>% 
+  .[["vals_table_hscp"]]
+
+```
+</div>
+</div>
+
+
 
 ### Change from Initial Year
 
-```{r deaths_change_ini}
+<div class = "indicator_double_table_container">
+<div class = "indicator_inner_upper_container">
+```{r deaths_change_ini_iz}
 
 output_indicator[[cur_indicator]] %>% 
-  .[["change_ini_table"]]
+  .[["change_ini_table_iz"]]
 
 ```
+</div>
+<div class = "indicator_inner_lower_container">
+```{r deaths_change_ini_hscp}
+
+output_indicator[[cur_indicator]] %>% 
+  .[["change_ini_table_hscp"]]
+
+```
+</div>
+</div>
+
+
 
 ### Year on Year Change
 
-```{r deaths_change_rolling}
+<div class = "indicator_double_table_container">
+<div class = "indicator_inner_upper_container">
+```{r deaths_change_rolling_iz}
 
 output_indicator[[cur_indicator]] %>% 
-  .[["change_rolling_table"]]
+  .[["change_rolling_table_iz"]]
 
 ```
+</div>
+<div class = "indicator_inner_lower_container">
+```{r deaths_change_rolling_hscp}
 
+output_indicator[[cur_indicator]] %>% 
+  .[["change_rolling_table_hscp"]]
 
-
+```
+</div>
+</div>
 

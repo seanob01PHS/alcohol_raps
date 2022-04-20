@@ -18,7 +18,7 @@ ha_smr01_extract <- function(channel,
   select * 
   from ANALYSIS.SMR01_PI 
   where link_no=z.link_no and cis_marker=z.cis_marker
-  and discharge_date between '", format(start_date - years(1), '%e %B %Y'), "' and '", format(start_date, '%e %B %Y'), "'
+  and discharge_date between '", format(start_date - years(1), '%e %B %Y'), "' and '", format(end_date, '%e %B %Y'), "'
   and (regexp_like(main_condition, '", alc_diag ,"')
   or regexp_like(other_condition_1,'", alc_diag ,"')
   or regexp_like(other_condition_2,'", alc_diag ,"')

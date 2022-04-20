@@ -1,9 +1,11 @@
 indicator_table <- function(data,
-                            data_shared,
+                            data_shared = NULL,
                             type="val", # can be "val" or "change"
                             ini_or_year_on_year="ini", # relevant when type="change"
                                                       # changes some subheader strings
-                            sparkline_type = "line"
+                            sparkline_type = "line",
+                            all_initial_cols = TRUE,
+                            is_being_filtered = TRUE
                             ){
   
   # column names that define each row
@@ -12,7 +14,15 @@ indicator_table <- function(data,
   year_cols <- names(data) %>% .[!(. %in% id_cols)]
   latest_year <- year_cols %>% tail(1)
   
-  col_defs <- default_cols_full(width_stretch=1.4)
+  
+  col_stretch <-  1.4
+  if(all_initial_cols){
+    col_defs <- default_cols_full(width_stretch=col_stretch)
+  } else {
+    col_defs <- default_cols_area()
+  }
+  
+  
   
   # For the column group label over all the year columns
   year_type <- year_cols[[1]] %>% find_year_type()
@@ -73,6 +83,7 @@ indicator_table <- function(data,
   # sparkline
   col_defs[["sparkline"]] <- colDef(show = TRUE,
                                    name = "Trend",
+                                   maxWidth = 150,
                                    sticky = "right",
                                    align = "center",
                                    class = "border-left",
@@ -86,7 +97,13 @@ indicator_table <- function(data,
   default_sorting <- list()
   default_sorting[[latest_year]] <- "desc"
   
-  reactable(data_shared,
+  if (is_being_filtered){
+    table_out <- data_shared
+  } else {
+    table_out <- data
+  }
+  
+  reactable(table_out,
             selection = "multiple",
             onClick = "select",
             columns = col_defs,

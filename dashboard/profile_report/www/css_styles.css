@@ -207,8 +207,24 @@
 }
 
 .profile_inner_container {
- height: 87%;
+ height: 90%;
 }
+
+.indicator_double_table_container {
+  height: 100%;
+  margin-right: 5px;
+  overflow-y: scroll;
+}
+
+.indicator_inner_upper_container {
+  padding-bottom: 30px
+}
+
+.indicator_inner_lower_container {
+  padding-top: 20px;
+  border-top: 1px dashed #555;
+}
+
 
 /*------------------------------------------*/
 /*------------------------------------------*/

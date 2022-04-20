@@ -29,7 +29,25 @@ library(purrr)
 library(phsmethods)
 
 
-coordinate_profile_extract <- function(){
+coordinate_profile_extract <- function(cal_years){
+  
+  start <- min(cal_years) %>% ymd(truncated = 2L)
+  end <- max(cal_years) %>% ymd(truncated = 2L)
+  
+  # hospital admissions are fin years
+  smr01_start_date <- start %m+% months(3)
+  smr01_end_date <- end + period("1 year 2 months 30 days") 
+  
+  
+  # mh admissions are 3 fin year aggregates
+  smr04_start_date <- (start - period("2 years")) %m+% months(3)
+  smr04_end_date <- end + period("1 year 2 months 30 days")
+  
+  
+  # deaths are y cal year aggregates
+  deaths_start_date <- start - period("2 year")
+  deaths_end_date <- end + period("1 year") - period("1 day")
+  
   
   # Source all extract files
   list.files(path = here("extract", "profile_annual", "db_extract"),
@@ -125,7 +143,6 @@ coordinate_profile_extract <- function(){
                                                   deaths_end_date,
                                                   cal_year_pops)
   
-  
   alcohol_data_output <- bind_rows(alcohol_admission_output_ha_smr01,
                                    alcohol_admission_output_mh_smr04,
                                    alcohol_deaths_output_nrs) %>% 
@@ -138,7 +155,6 @@ coordinate_profile_extract <- function(){
                             TRUE ~ hscp),
            lookup = paste0(indicator, iz, year)) %>% 
     select(lookup, colnames(alcohol_admission_output_ha_smr01))
-  
   
   alcohol_data_output %>% 
     write_csv(here("output", "profile_annual_data", "profile.csv"))

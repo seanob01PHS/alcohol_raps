@@ -46,5 +46,8 @@ make_indicator_detail_frames <- function(data, indicator_name){
   
   list("vals" = df_vals,
        "change_ini" = df_change_ini,
-       "change_rolling" = df_change_rolling)
+       "change_rolling" = df_change_rolling) %>% 
+  # for each table type, there is an iz and hscp table displayed
+  map(~list("iz" = .x %>% filter(!is.na(iz_name)),
+            "hscp" = .x %>% filter(is.na(iz_name))))
 }

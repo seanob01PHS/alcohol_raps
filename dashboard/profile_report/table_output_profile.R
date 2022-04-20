@@ -98,9 +98,21 @@ col_group_header <- function(header_name){
 # Returns c(abs(max(x)), abs(min(x)))
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 get_abs_p_m_max <- function(table){
+  # test if table is only NA return c(0,0)
+  if (is.na(table[1,1])){
+    #browser()
+  }
+
+  if (table %>%
+      map(~ is.na(.x) %>% 
+          reduce(`&`)) %>% 
+      reduce(`&`)){
+    return(c(1,1))
+  }
+  
   neg_max <- table %>% select_if(is.numeric) %>% min(na.rm = TRUE) %>% abs()
   pos_max <- table %>% select_if(is.numeric) %>% max(na.rm = TRUE) %>% abs()
-  c(pos_max, neg_max)
+  return(c(pos_max, neg_max))
 }
 
 

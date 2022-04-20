@@ -99,6 +99,7 @@ ha_smr01_wrangle <-  function(data_alcohol_episodes,
            rate = (number/total_pop)*10000) %>% 
     ungroup()
   
+  
   # Add in HSCP and locality totals
   ggc_output_final <- bind_rows(ggc_output_final,
                                 # hscp totals
