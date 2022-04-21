@@ -84,11 +84,8 @@ make_profile_frame <- function(data){
     data_piv[[new_var_name]] <- zero_safe_rate_of_change(data_piv[[curr_col]], data_piv[[old_col]])
   }
   
-  
-  
   curr_cols <- rate_pairings %>% map(2)
   old_cols <- rate_pairings %>% map(3)
-  
   
   scot_figs <- list()
   ggc_figs <- list()
@@ -100,6 +97,7 @@ make_profile_frame <- function(data){
       pull(rate) %>% 
       .[[1]]
     
+
     ggc_figs[[indicator_f]] <- data_f %>% 
       filter(year_start == most_recent_dates[[indicator_f]],
              indicator == indicator_f,
@@ -157,7 +155,7 @@ table_for_download_profile <- function(data){
     indicator <- bits %>% map_chr(2)
     year_str <- bits %>% map_chr(3)
     
-    paste(indicator, "EASR (per 10,000) pop", year_str)
+    paste(indicator, "EASR (per 10,000 pop) at", year_str)
   }
   rescramble_roc_col <- function(roc_col_name){
     bits <- roc_col_name %>% 

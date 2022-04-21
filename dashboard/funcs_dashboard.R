@@ -200,3 +200,20 @@ val_cell_js <- function(){
                 }")
   cell_JS
 }
+
+# attempt to add run above function declaration only once. Has not worked
+# as it stands, function is declared for each cell.
+declare_js_quantile_func <- function(){
+  htmlwidgets::JS(" window.quantile = function(arr, q){
+                      const sorted = arr.sort((a, b) => a - b);
+                      const pos = (sorted.length - 1) * q;
+                      const base = Math.floor(pos);
+                      const rest = pos - base;
+                      if (sorted[base + 1] !== undefined) {
+                          return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+                      } else {
+                          return sorted[base];
+                      }
+                  };")
+  
+}

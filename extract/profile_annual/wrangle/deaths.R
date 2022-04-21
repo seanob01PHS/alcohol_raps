@@ -15,8 +15,7 @@ deaths_nrs_wrangle <- function(data_alcohol_deaths,
     filter(!is.na(datazone_2011),
            hbres_currentdate == 'S08000031') %>% 
     group_by(year, int_zone2011) %>% 
-    summarise(number = n()) %>% 
-    ungroup()
+    summarise(number = n(), .groups = "drop")
   
   ggc_output_deaths <- ggc_interzone_pop_cal %>% 
     left_join(ggc_alcohol_deaths, by = c('year', 'int_zone2011')) %>% 
@@ -33,8 +32,7 @@ deaths_nrs_wrangle <- function(data_alcohol_deaths,
                                  ggc_output_deaths %>% 
                                    filter(!is.na(ca_name)) %>% 
                                    group_by(year, ca_name) %>% 
-                                   summarise(number = sum(number)) %>% 
-                                   ungroup() %>% 
+                                   summarise(number = sum(number), .groups = "drop") %>% 
                                    left_join(ca_populations_cal, by = c('year', 'ca_name')) %>% 
                                    mutate(int_zone2011 = NA, iz_name = "", hscp_locality = ca_name) %>% 
                                    select(colnames(ggc_output_deaths)),
@@ -43,8 +41,7 @@ deaths_nrs_wrangle <- function(data_alcohol_deaths,
                                  ggc_output_deaths %>% 
                                    filter(grepl('Glasgow', hscp_locality)) %>% 
                                    group_by(year, hscp_locality) %>% 
-                                   summarise(number = sum(number)) %>% 
-                                   ungroup() %>% 
+                                   summarise(number = sum(number), .groups = "drop") %>% 
                                    left_join(glas_locality_pop_cal, by = c('year', 'hscp_locality')) %>% 
                                    mutate(int_zone2011 = NA, iz_name = '', ca_name = 'Glasgow City') %>% 
                                    select(colnames(ggc_output_deaths))
@@ -83,8 +80,9 @@ deaths_nrs_wrangle <- function(data_alcohol_deaths,
                                                group_by(year2, indicator, iz, iz_name, hscp, hscp_locality) %>%
                                                summarise(pop = sum(pop)/3,
                                                          number = sum(number),
-                                                         rate = (number/pop)*10000) %>% 
-                                               ungroup())
+                                                         rate = (number/pop)*10000,
+                                                         .groups = "drop")
+                                             )
     start_year <- start_year + 1
     end_year <- end_year + 1
     

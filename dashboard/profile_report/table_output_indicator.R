@@ -15,7 +15,7 @@ indicator_table <- function(data,
   latest_year <- year_cols %>% tail(1)
   
   
-  col_stretch <-  1.4
+  col_stretch <-  1.1
   if(all_initial_cols){
     col_defs <- default_cols_full(width_stretch=col_stretch)
   } else {
@@ -56,7 +56,7 @@ indicator_table <- function(data,
       # val column type
       col_defs[[col_name]] <- make_val_column(data[col_name],
                                               col_name = col_name,
-                                              header_str = "EASR",
+                                              header_str = "EASR (per 10,000 pop)",
                                               cell_class = cell_class)
     } else if (type=="change") {
       # roc (rate of change) column type

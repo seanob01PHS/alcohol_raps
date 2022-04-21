@@ -6,6 +6,11 @@ output:
     orientation: rows
     vertical_layout: fill
     css: www/css_styles.css
+params:
+  start_year:
+    value: "2015"
+  end_year:
+    value: "2020"
 ---
 
 
@@ -40,12 +45,13 @@ source(here("dashboard", "funcs_dashboard.R"))
 
 source(here("dashboard", "warning_text.R"))
 
-# data_dir <- "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/output/"
-# data <-  read.xlsx(paste0(data_dir, "GGC Alcohol Data.xlsx"), 1) %>% 
-#   select(-lookup)
+if ((params$start_year=="default") | (params$end_year=="default")){
+  stop("You must provide the knitting of this .Rmd with the parameters: start_year, end_year")
+}
 
-
-data <- read_csv(here("output", "profile_annual_data", "profile.csv")) %>% 
+data <- read_csv(here("output",
+                      "profile_annual_data", 
+                      paste0("profile_data_", params$start_year, "_to_", params$end_year, ".csv"))) %>% 
    select(-lookup)
 
 # replace hscp with locality 
@@ -66,6 +72,9 @@ big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
 
 
 ```
+
+
+
 
 Notes {data-icon="fa-info-circle"}
 =====================================
@@ -613,7 +622,7 @@ output_indicator[[cur_indicator]] %>%
 ```{r mh_change_ini_hscp}
 
 output_indicator[[cur_indicator]] %>% 
-  .[["change_ini_table_iz"]]
+  .[["change_ini_table_hscp"]]
 
 ```
 </div>
@@ -636,7 +645,7 @@ output_indicator[[cur_indicator]] %>%
 ```{r mh_change_rolling_hscp}
 
 output_indicator[[cur_indicator]] %>% 
-  .[["change_rolling_table_iz"]]
+  .[["change_rolling_table_hscp"]]
 
 ```
 </div>

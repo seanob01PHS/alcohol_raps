@@ -3,51 +3,18 @@
 ### Run each year. Produces output for 3 alcohol harms indicatrs at IZ
 ### level for releavnt time periods.
 
-################################################################
-###### Load packages
-################################################################
-# File to run and combine Alcohol-related and Alcohol-related mental health hospital admissions
-# Note - make sure to load odbc before loading tidyverse
-library(odbc)
-library(janitor)
-library(lubridate)
-library(zoo)
-library(dplyr)
-library(tidyr)
-library(readr)
-library(tibble)
-library(stringr)
-library(readxl)
-library(writexl)
-library(here)
-library(purrr)
-# phsmethods package
-# to install uncomment following lines
-# install.packages("remotes")
-# library(remotes)
-# remotes::install_github("Public-Health-Scotland/phsmethods", upgrade = "never")
-library(phsmethods)
 
-
-coordinate_profile_extract <- function(cal_years){
-  
-  start <- min(cal_years) %>% ymd(truncated = 2L)
-  end <- max(cal_years) %>% ymd(truncated = 2L)
-  
-  # hospital admissions are fin years
-  smr01_start_date <- start %m+% months(3)
-  smr01_end_date <- end + period("1 year 2 months 30 days") 
-  
-  
-  # mh admissions are 3 fin year aggregates
-  smr04_start_date <- (start - period("2 years")) %m+% months(3)
-  smr04_end_date <- end + period("1 year 2 months 30 days")
+coordinate_profile_extract <- function(start_year,
+                                       end_year,
+                                       smr01_start_date,
+                                       smr01_end_date,
+                                       smr04_start_date,
+                                       smr04_end_date,
+                                       deaths_start_date,
+                                       deaths_end_date){
   
   
-  # deaths are y cal year aggregates
-  deaths_start_date <- start - period("2 year")
-  deaths_end_date <- end + period("1 year") - period("1 day")
-  
+  message(".... performing extracts. Can take ~5 minutes.")
   
   # Source all extract files
   list.files(path = here("extract", "profile_annual", "db_extract"),
@@ -64,19 +31,6 @@ coordinate_profile_extract <- function(cal_years){
   
   # Source pops lookup
   source(here("extract", "profile_annual", "pop_lookups.R"))
-  
-  data.out <- here("output", "profile_annual_data")
-  
-  # start and end dates for filtering stay data 
-  # changed to date format
-  smr01_start_date <- ymd("2015-04-01")
-  smr01_end_date <- ymd("2021-03-31")
-  
-  smr04_start_date <- ymd("2013-04-01")
-  smr04_end_date <- ymd("2021-03-31")
-  
-  deaths_start_date <- ymd("2013-01-01")
-  deaths_end_date <- ymd("2020-12-31")
   
   # calc 3 months before start date for extract - accounts for admissions before start date (discharge based analysis)
   # changed to date format
@@ -157,7 +111,7 @@ coordinate_profile_extract <- function(cal_years){
     select(lookup, colnames(alcohol_admission_output_ha_smr01))
   
   alcohol_data_output %>% 
-    write_csv(here("output", "profile_annual_data", "profile.csv"))
+    write_csv(here("output", "profile_annual_data", paste0("profile_data_", start_year, "_to_", end_year, ".csv")))
 }
 
 

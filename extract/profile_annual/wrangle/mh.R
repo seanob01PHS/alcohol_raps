@@ -78,8 +78,8 @@ mh_smr04_wrangle <- function(data_alcohol_episodes_smr04,
   ggc_output_final_smr04 <- ggc_interzone_pop %>% 
     left_join(ggc_output_smr04 %>% 
                 group_by(finyear, int_zone2011, iz_name, ca_name, lookup) %>% 
-                summarise(number = n()) %>% 
-                ungroup(), by = c('finyear', 'int_zone2011', 'iz_name', 'ca_name')) %>%
+                summarise(number = n(), .groups = "drop"),
+              by = c('finyear', 'int_zone2011', 'iz_name', 'ca_name')) %>%
     mutate(number = case_when(is.na(number) ~ 0,
                               TRUE ~ as.double(number)),
            lookup = case_when(is.na(ca_name) ~ str_remove(hscp_locality, " "),
@@ -97,8 +97,7 @@ mh_smr04_wrangle <- function(data_alcohol_episodes_smr04,
                                       ggc_output_final_smr04 %>% 
                                         filter(!is.na(ca_name)) %>% 
                                         group_by(finyear, ca_name) %>% 
-                                        summarise(number = sum(number)) %>% 
-                                        ungroup() %>% 
+                                        summarise(number = sum(number), .groups = "drop") %>%
                                         left_join(ca_populations, by = c('finyear', 'ca_name')) %>% 
                                         mutate(lookup = ca_name, hscp_locality = ca_name, int_zone2011 = NA, iz_name = NA,
                                                rate = (number/total_pop)*10000) %>%
@@ -108,8 +107,7 @@ mh_smr04_wrangle <- function(data_alcohol_episodes_smr04,
                                       ggc_output_final_smr04 %>%
                                         filter(grepl('Glasgow', hscp_locality)) %>% 
                                         group_by(finyear, hscp_locality) %>% 
-                                        summarise(number = sum(number)) %>% 
-                                        ungroup() %>% 
+                                        summarise(number = sum(number), .groups = "drop") %>%
                                         left_join(glas_locality_pop, by = c('finyear', 'hscp_locality')) %>% 
                                         mutate(lookup = hscp_locality, ca_name = 'Glasgow City', iz_name = NA,
                                                rate = (number/total_pop)*10000) %>% 
@@ -153,8 +151,9 @@ mh_smr04_wrangle <- function(data_alcohol_episodes_smr04,
                                                         group_by(lookup, year2, indicator, iz, iz_name, hscp, hscp_locality) %>% 
                                                         summarise(pop = sum(pop)/3,
                                                                   number = sum(number),
-                                                                  rate = (number/pop)*10000) %>% 
-                                                        ungroup())
+                                                                  rate = (number/pop)*10000,
+                                                                  .groups = "drop")
+                                                      )
     start_year1 <- start_year1 + 1
     start_year2 <- start_year1-1999
     start_fy_year <- paste0(start_year1, "/", start_year2)
