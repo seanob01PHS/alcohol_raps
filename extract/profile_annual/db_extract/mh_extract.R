@@ -6,6 +6,8 @@ mh_smr04_extract <- function(channel,
                              start_date,
                              end_date){
   
+  message(".... performing SMR00 extract.")
+  
   # odbcPreviewObject(channel, table="ANALYSIS.SMR04_PI", rowLimit=0)
   
   # define SQL Query

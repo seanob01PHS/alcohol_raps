@@ -6,14 +6,13 @@
 ### Produces 1 output file - for Scotland, NHS GGC and the 6 HSCPs
 
 
-accumulate_qtr_extracts <-  function(){
+accumulate_qtr_extracts <-  function(qtr_start, qtr_end){
   ################################################################
   ##### Set file names and folders
   ################################################################
   
   # output (data.in - where individual qtr reports are saved; data.out - output of this script)
-  data.in = here("output", "EASR_qtr_data")
-  data.out = here("output", "EASR_accumulated_data", "qtr_alc_adm_GGC.csv")
+  data.in = here("output", "admissions_qtr_data")
   
   # set Area names
   area_names = c("NHS Greater Glasgow and Clyde",
@@ -59,7 +58,8 @@ accumulate_qtr_extracts <-  function(){
     mutate(lookup = paste0(area,as.numeric(as.Date(date_end) -as.Date(0, origin="1899-12-30", tz='UTC')))) %>%
     select(lookup, everything())
   
-  # save output
-  write.csv(data2, file = data.out, row.names=FALSE)
+  # return output
+  data2 %>% 
+    filter(as_date(date_end) %within% interval(qtr_start, qtr_end))
 }
 

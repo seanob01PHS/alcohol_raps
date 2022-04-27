@@ -8,9 +8,11 @@ output:
     css: www/css_styles.css
 params:
   start_year:
-    value: "2015"
+    value: "default"
   end_year:
-    value: "2020"
+    value: "default"
+  population_year:
+    value: "default"
 ---
 
 
@@ -34,6 +36,8 @@ library(purrr)
 ```
 
 ```{r init, include=FALSE}
+  message(".... rendering output. Can take ~2 minutes.")
+
 source(here("dashboard", "profile_report", "process_wrangle_profile.R"))
 source(here("dashboard", "profile_report", "process_wrangle_indicator.R"))
 
@@ -45,7 +49,7 @@ source(here("dashboard", "funcs_dashboard.R"))
 
 source(here("dashboard", "warning_text.R"))
 
-if ((params$start_year=="default") | (params$end_year=="default")){
+if ("default" %in% params){
   stop("You must provide the knitting of this .Rmd with the parameters: start_year, end_year")
 }
 
@@ -259,7 +263,7 @@ Profile {data-icon="fa-list"}
 
 
 ```{r crosstalk_filter, include=FALSE}
-all_table_data <- make_profile_frame(data) %>% arrange(desc(across(contains("hospital admissions"))))
+all_table_data <- make_profile_frame(data, params$population_year)
 
 ```
 
@@ -444,6 +448,7 @@ output_indicator <-
                                                         sparkline_type = "bar",
                                                         all_initial_cols = FALSE,
                                                         is_being_filtered = FALSE),
+              
               # --------------------------------------------------------
               
               "change_rolling_table_iz" = indicator_table(..2[["change_rolling"]][["iz"]],

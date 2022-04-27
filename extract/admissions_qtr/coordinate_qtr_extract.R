@@ -1,8 +1,19 @@
-source(here("extract", "EASR_qtr", "generate_new_qtr_data.R"))
-source(here("extract", "EASR_qtr", "accumulate_qtr_extracts.R"))
-source(here("extract", "EASR_qtr", "find_missing_qtr_data.R"))
+source(here("extract", "admissions_qtr", "generate_new_qtr_data.R"))
+source(here("extract", "admissions_qtr", "accumulate_qtr_extracts.R"))
+source(here("extract", "admissions_qtr", "find_missing_qtr_data.R"))
 
 coordinate_qtr_extract <- function(qtr_start, qtr_end){
+  
+  # Connect to SMRA tables using odbc connection
+  # The suppressWarnings function prevents your password from
+  # appearing in the console if the connection is unsuccessful
+  channel <- suppressWarnings(
+    dbConnect(odbc(),
+              dsn = "SMRA",
+              uid = Sys.info()[['user']],
+              pwd = .rs.askForPassword("What is your LDAP password?"))
+  )
+  
   
   #find missing files
   missing_qtrs_and_files <- find_missing_qtr_data(qtr_start, qtr_end)
@@ -10,7 +21,7 @@ coordinate_qtr_extract <- function(qtr_start, qtr_end){
   # generate the latest data before checking for missing other missing data.
   if(qtr_end %in% (missing_qtrs_and_files %>% map(1))){
     message(paste0("Generating data for qtr end: ", qtr_end))
-    generate_new_qtr_data(qtr_end)
+    generate_new_qtr_data(qtr_end, channel)
   }
 
   # update the missing files
@@ -23,13 +34,13 @@ coordinate_qtr_extract <- function(qtr_start, qtr_end){
       missing_qtrs_and_files %>% 
       map_chr(~paste0(.x[[1]], ":\n",
                       tail(.x, -1) %>% 
-                        map(~paste0("\t", .x, "\n")) %>% 
+                        map(~paste0("\t", basename(.x), "\n")) %>% 
                         reduce(paste0))) %>% 
             reduce(paste0)
                   
     
     message(paste0("\nError: certain necessary qtr files are not present in the folder:\n\t",
-                   here("output", "EASR_qtr_data"), "\n--------------------------------\n",
+                   here("output", "admissions_qtr_data"), "\n--------------------------------\n",
                    missing_bits_str, "\n"
                    ))
     
@@ -48,20 +59,19 @@ coordinate_qtr_extract <- function(qtr_start, qtr_end){
     
     for(qtr_end in dates_to_generate){
       message(paste0("Generating data for qtr end: ", qtr_end))
-      generate_new_qtr_data(qtr_end)
+      generate_new_qtr_data(qtr_end, channel)
     }
     
   }
   
-  accumulate_qtr_extracts()
+  # all the files dealt with above put in to one file filtered for
+  # the relevant dates
+  accumulated_data <- accumulate_qtr_extracts(qtr_start, qtr_end)
   
   # filtering accumulated data to desired dates
-  accumulated_data_dir <- here("output", "EASR_accumulated_data", "qtr_alc_adm_GGC.csv")
-  accumulated_data <- read_csv(accumulated_data_dir, show_col_types = FALSE)
-  accumulated_data %>% 
-    filter(date_end %within% interval(qtr_start, qtr_end)) %>% 
-    write_csv(accumulated_data_dir)
-  
+  accumulated_data_out <- here("output", "admissions_qtr_data", "accumulated", paste0("qtr_alc_adm_GGC_", qtr_start, "_to_", qtr_end, ".csv"))
+  # write output
+  accumulated_data %>% write_csv(accumulated_data_out)
 }
 
 # Checks that both dates are the last day of a quarter

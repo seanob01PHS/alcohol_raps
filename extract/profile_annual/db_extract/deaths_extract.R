@@ -11,6 +11,9 @@
 deaths_nrs_extract <- function(channel,
                                deaths_start_date,
                                deaths_end_date){
+  
+  message(".... performing NRS_DEATHS extract")
+  
   data_alcohol_deaths_nrs <- as_tibble(dbGetQuery(channel, statement=paste0(
     "SELECT year_of_registration year, age, SEX sex_grp, postcode,
                                     datazone_2011, intzone_2011 int_zone2011, council_area_2019, hbres_currentdate, underlying_cause_of_death

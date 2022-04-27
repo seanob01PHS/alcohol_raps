@@ -13,12 +13,10 @@ first_non_na <- function(grp){
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Vectorised rate of change where
 #     a is (a/b-1) change from b
-#     0 is (0) change from 0
 #     a is (NA) change from 0
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 zero_safe_rate_of_change <- function(a,b){
-  case_when(a>0 & b==0 ~ NA_real_,
-            a==0 & b==0 ~ 0.,
+  case_when(b==0 ~ NA_real_,
             TRUE ~ a/b - 1)
 }
 

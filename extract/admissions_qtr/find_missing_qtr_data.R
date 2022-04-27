@@ -11,7 +11,7 @@ find_missing_qtr_data <- function(qtr_start, qtr_end){
     `-`(1)
   
   # directory where necessary files are
-  files_dir <- here("output", "EASR_qtr_data")
+  files_dir <- here("output", "admissions_qtr_data")
   
   # vector of necessary names HB
   file_names_HB <- paste0(files_dir,

@@ -126,6 +126,54 @@ default_cols_area <- function(width_stretch = 1){
 }
 
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# To get the absolute value of the extremes of a data set
+# for colour scaling purposes
+# Returns c(abs(max(x)), abs(min(x)))
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+get_abs_p_m_max <- function(table){
+  if (table %>%
+      map(~ is.na(.x) %>% 
+          reduce(`&`)) %>% 
+      reduce(`&`)){
+    return(c(1,1))
+  }
+  
+  neg_max <- table %>% select_if(is.numeric) %>% min(na.rm = TRUE) %>% abs()
+  pos_max <- table %>% select_if(is.numeric) %>% max(na.rm = TRUE) %>% abs()
+  return(c(pos_max, neg_max))
+}
+
+
+
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# returns a function that returns different colours to positive
+# and negative values given a pre scaled value input
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+make_p_m_color_pal <- function(plus_neg_zero_colours, bias = 1) {
+  p_col <- plus_neg_zero_colours[[1]]
+  n_col <- plus_neg_zero_colours[[2]]
+  z_col <- plus_neg_zero_colours[[3]]
+  
+  get_colour_p <- colorRamp(c(z_col, p_col), bias = bias)
+  get_colour_n <- colorRamp(c(z_col, n_col), bias = bias)
+  
+  function(x) {
+    if (is.na(x)){
+      #usually white
+      z_col
+    } else if (x==0){
+      #usually white
+      z_col
+    } else if (x < 0){
+      rgb(get_colour_n(abs(x)), maxColorValue = 255)
+    } else {
+      rgb(get_colour_p(x), maxColorValue = 255)
+    }
+  }
+}
+
+
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Nice formatting of pct columns
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 format_pct <- function(value) {
@@ -137,7 +185,7 @@ format_pct <- function(value) {
                           TRUE~"")
     
     paste0(sign_str,
-           formatC(paste0(round(abs(value) * 100, digits = 1), "%"), width = 6))
+           paste0(format(round(abs(value) * 100, 1), nsmall = 1), "%"))
   }
 }
 
@@ -158,6 +206,26 @@ value_style_generator <- function(column_vals, colour){
 }
 
 
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# Makes the function that returns the style of a comparison
+# cell based on abs_max_vals
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+comparison_style_generator <- function(abs_max_vals, colour_pallette){
+  function(value){
+    pos_max <- abs_max_vals[[1]]
+    neg_max <- abs_max_vals[[2]]
+    
+    if (value==0 | is.na(value)){
+      scaled <- 0
+    } else if (value > 0){
+      scaled <- value/pos_max
+    } else {
+      scaled <- value/neg_max
+    }
+    
+    list(color = "#111", background = colour_pallette(scaled), fontSize="9pt")
+  }
+}
 
 
 # Javascript for adding dynamic quartile calculation to value cells

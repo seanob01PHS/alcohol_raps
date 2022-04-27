@@ -40,8 +40,11 @@ rate_pairings <- function(data){
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Returns a df with all the columns ready to be displayed as they are
 # in the profile tab of the alcohol harms workbook
+
+# population_year is the year of most recent populationm data actually present
+# inn original lookup. (Old populations can be re-used)
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-make_profile_frame <- function(data){
+make_profile_frame <- function(data, population_year){
   
   # A char vector of all the different types of  indicators in the data
   indicators <- data %>% pull(indicator) %>% unique()
@@ -117,13 +120,6 @@ make_profile_frame <- function(data){
     data_piv[[new_var_name_ggc]] <- zero_safe_rate_of_change(data_piv[[curr_col]], ggc_figs[[indicator]])
     
   }
-  
-  
-  #gets largest year_start in data
-  population_year <- data %>%
-    arrange(desc(year_start)) %>% 
-    pull(year_start) %>% 
-    .[[1]]
   
   populations <- get_pops(data_piv, data, population_year)
   

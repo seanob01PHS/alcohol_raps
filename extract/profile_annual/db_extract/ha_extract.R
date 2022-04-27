@@ -6,6 +6,8 @@ ha_smr01_extract <- function(channel,
                              start_date,
                              end_date){
   
+  message(".... performing SMR01 extract.")
+  
   data_alcohol_episodes_smr01 <- as_tibble(dbGetQuery(channel, statement=paste0(
     "SELECT LINK_NO, CIS_MARKER, ADMISSION_DATE, DISCHARGE_DATE, ADMISSION_TYPE, INPATIENT_DAYCASE_IDENTIFIER, DISCHARGE_TRANSFER_TO,
   UPI_NUMBER, SEX, AGE_IN_YEARS, LENGTH_OF_STAY,

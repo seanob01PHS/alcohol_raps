@@ -71,27 +71,6 @@ table_with_sparklines <- function(table_data, p_m_colouring = FALSE, sparkline_t
 }
 
 
-
-make_p_m_color_pal <- function(plus_neg_zero_colours, bias = 1) {
-  p_col <- plus_neg_zero_colours[[1]]
-  n_col <- plus_neg_zero_colours[[2]]
-  z_col <- plus_neg_zero_colours[[3]]
-  
-  get_colour_p <- colorRamp(c(z_col, p_col), bias = bias)
-  get_colour_n <- colorRamp(c(z_col, n_col), bias = bias)
-  
-  function(x) {
-    if (x==0){
-      #usually white
-      z_col
-    } else if (x < 0){
-      rgb(get_colour_n(abs(x)), maxColorValue = 255)
-    } else {
-      rgb(get_colour_p(x), maxColorValue = 255)
-    }
-  }
-}
-
 p_m_colours <- make_p_m_color_pal(c("#d26146", "#9cc951", "#ffffff"), bias=1.5)
 
 make_year_end_column <- function(abs_max_vals){
@@ -112,13 +91,6 @@ make_year_end_column <- function(abs_max_vals){
     
     list(color = "#111", background = p_m_colours(scaled))
   })
-}
-
-#bit of a bodge. Doesn't handle stupid cases very well
-get_abs_p_m_max <- function(table){
-  neg_max <- table %>% select_if(is.numeric) %>% min() %>% abs()
-  pos_max <- table %>% select_if(is.numeric) %>% max() %>% abs()
-  c(pos_max, neg_max)
 }
 
 

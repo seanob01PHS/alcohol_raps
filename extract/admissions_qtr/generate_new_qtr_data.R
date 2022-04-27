@@ -25,7 +25,7 @@ library(haven)
 library(phsmethods)
 
 
-generate_new_qtr_data <- function(date_end){
+generate_new_qtr_data <- function(date_end, channel){
   
   ################################################################
   ##### Set file names and folders
@@ -39,7 +39,7 @@ generate_new_qtr_data <- function(date_end){
   dir <- getwd()
   
   # output
-  data.out = "output/EASR_qtr_data/"
+  data.out = "output/admissions_qtr_data/"
   
   
   ## Lookups
@@ -94,17 +94,6 @@ generate_new_qtr_data <- function(date_end){
   ################################################################
   ##### SMRA extraction
   ################################################################
-  
-  # Connect to SMRA tables using odbc connection
-  # The suppressWarnings function prevents your password from
-  # appearing in the console if the connection is unsuccessful
-  channel <- suppressWarnings(
-    dbConnect(odbc(),
-              dsn = "SMRA",
-              uid = Sys.info()[['user']],
-              pwd = .rs.askForPassword("What is your LDAP password?"))
-  )
-  
   
   ##### Extract SMR01 data
   
@@ -243,8 +232,7 @@ generate_new_qtr_data <- function(date_end){
   # aggregate age groups together
   pop.hscp.fix <- pop.hscp.fix %>%
     group_by(popyear, hscp, hscp_name, sex, sex_name) %>%
-    summarise(pop=sum(pop)) %>%
-    ungroup()
+    summarise(pop=sum(pop), .groups = "drop")
   
   # rename dropped columns
   pop.hscp.fix$age_group = 1
@@ -264,8 +252,7 @@ generate_new_qtr_data <- function(date_end){
   # aggregate for Scotland
   pop.scot <- pop.hscp %>%
     group_by(popyear, sex, sex_name, age_group, age_group_name) %>%
-    summarise(pop=sum(pop)) %>%
-    ungroup()
+    summarise(pop=sum(pop), .groups = "drop")
   
   # rename dropped columns
   pop.scot$hscp = "Scotland"
@@ -292,8 +279,7 @@ generate_new_qtr_data <- function(date_end){
   # aggregate age groups together
   pop.hb.fix <- pop.hb.fix %>%
     group_by(popyear, hbres, hbres_name, sex, sex_name) %>%
-    summarise(pop=sum(pop)) %>%
-    ungroup()
+    summarise(pop=sum(pop), .groups = "drop")
   
   # rename dropped columns
   pop.hb.fix$age_group = 1
@@ -313,8 +299,7 @@ generate_new_qtr_data <- function(date_end){
   # aggregate for Scotland
   pop.scot <- pop.hb %>%
     group_by(popyear, sex, sex_name, age_group, age_group_name) %>%
-    summarise(pop=sum(pop)) %>%
-    ungroup()
+    summarise(pop=sum(pop), .groups = "drop")
   
   # rename dropped columns
   pop.scot$hbres = "Scotland"
@@ -328,7 +313,7 @@ generate_new_qtr_data <- function(date_end){
   ### ESP2013 std pop
   
   # read in data
-  pop.std  <- read_csv(filepathname.pop.std)
+  pop.std  <- read_csv(filepathname.pop.std, show_col_types = FALSE)
   names(pop.std) <- c('age_group','sex','ESP2013pop')
   
   
@@ -343,8 +328,7 @@ generate_new_qtr_data <- function(date_end){
   # aggregate data table - add popyear from FY and convert sex to number
   agg_hscp <- data_stays2 %>%
     group_by(hscp, sex, age_group) %>%
-    summarise(number=n()) %>%
-    ungroup() %>%
+    summarise(number=n(), .groups = "drop") %>%
     mutate(sex = as.numeric(sex)) 
   
   ### Scotland data 
@@ -352,8 +336,7 @@ generate_new_qtr_data <- function(date_end){
   # aggregate data table - add popyear from FY and convert sex to number
   agg_scot <- data_stays2 %>%
     group_by(sex, age_group) %>%
-    summarise(number=n()) %>%
-    ungroup() %>%
+    summarise(number=n(), .groups = "drop") %>%
     mutate(sex = as.numeric(sex)) 
   
   # rename dropped columns
@@ -393,8 +376,7 @@ generate_new_qtr_data <- function(date_end){
   # aggregate data table - add popyear from FY and convert sex to number
   agg_hb <- data_stays2 %>%
     group_by(hbres, sex, age_group) %>%
-    summarise(number=n()) %>%
-    ungroup() %>%
+    summarise(number=n(), .groups = "drop") %>%
     mutate(sex = as.numeric(sex)) 
   
   ### Scotland data 
@@ -402,8 +384,7 @@ generate_new_qtr_data <- function(date_end){
   # aggregate data table - add popyear from FY and convert sex to number
   agg_scot <- data_stays2 %>%
     group_by(sex, age_group) %>%
-    summarise(number=n()) %>%
-    ungroup() %>%
+    summarise(number=n(), .groups = "drop") %>%
     mutate(sex = as.numeric(sex)) 
   
   # rename dropped columns
@@ -458,16 +439,14 @@ generate_new_qtr_data <- function(date_end){
     summarise(pop = sum(pop, na.rm=TRUE),
               number = sum(number, na.rm=TRUE),
               ESP2013pop = sum(ESP2013pop, na.rm=TRUE),
-              TASRESP = sum(ASRESP, na.rm=TRUE)) %>%
-    ungroup()
+              TASRESP = sum(ASRESP, na.rm=TRUE), .groups = "drop")
   
   tbl_hb2 <- tbl_hb %>%
     group_by(hbres_name) %>%
     summarise(pop = sum(pop, na.rm=TRUE),
               number = sum(number, na.rm=TRUE),
               ESP2013pop = sum(ESP2013pop, na.rm=TRUE),
-              TASRESP = sum(ASRESP, na.rm=TRUE)) %>%
-    ungroup()
+              TASRESP = sum(ASRESP, na.rm=TRUE), .groups = "drop")
   
   # calc EASR
   tbl_hscp2$EASR = tbl_hscp2$TASRESP / tbl_hscp2$ESP2013pop * ratemulti

@@ -21,14 +21,20 @@ library(plotly)
 library(downloadthis)
 library(purrr)
 
+# set proj wd
+setwd("/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/Regular Report RAPs/")
+
+# decalres the position of theis script within project root
+here::i_am("make_qtr_report.R")
+
 #source the coordinate function
-source(here("extract", "EASR_qtr", "coordinate_qtr_extract.R"))
+source(here("extract", "admissions_qtr", "coordinate_qtr_extract.R"))
 
 
 
 # The end of the first quarter you want to appear in the report
 # Must be the last date in a quarter
-qtr_start <- ymd("2019-09-30")
+qtr_start <- ymd("2019-06-30")
 
 # The end of the latest quarter you want to appear in the report
 # Must be the last date in a quarter
@@ -41,6 +47,8 @@ coordinate_qtr_extract(qtr_start, qtr_end)
 
 #creates the output
 rmarkdown::render(here("dashboard", "qtr_report", "GGC_qtr_report.rmd"),
-     output_file = here("output", "reports", paste0("GGC_qtr_report_", qtr_start, "_to_", qtr_end, ".html"))
+     output_file = here("output", "reports", paste0("GGC_qtr_report_", qtr_start, "_to_", qtr_end, ".html")),
+     params = list(qtr_start = qtr_start,
+                   qtr_end = qtr_end)
      )
 

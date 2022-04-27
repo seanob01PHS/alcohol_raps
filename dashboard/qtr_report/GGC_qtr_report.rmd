@@ -6,6 +6,11 @@ output:
     orientation: rows
     vertical_layout: scroll
     css: www/css_styles.css
+params:
+  qtr_start:
+    value: "default"
+  qtr_end:
+    value: "default"
 ---
 
 
@@ -23,17 +28,22 @@ library(downloadthis)
 
 knitr::opts_chunk$set(echo = FALSE)
 
-data_dir <- here("output", "EASR_accumulated_data", "qtr_alc_adm_GGC.csv")
+if ("default" %in% params){
+  stop("You must provide the knitting of this .Rmd with the parameters: qtr_start, qtr_end")
+}
+
+data_dir <- here("output", "admissions_qtr_data", "accumulated", paste0("qtr_alc_adm_GGC_", params$qtr_start, "_to_", params$qtr_end, ".csv"))
 data <- read_csv(data_dir) %>% 
   select(-lookup) %>% 
   mutate(date_end = ymd(date_end),
          EASR=round(EASR, 2),
          area=recode(area, `NHS Greater Glasgow and Clyde`="NHS GGC"))
 
-source(here("dashboard", "qtr_report", "trend_table.R"))
-source(here("dashboard", "qtr_report", "table_output.R"))
 source(here("dashboard", "funcs_wrangle.R"))
 source(here("dashboard", "funcs_dashboard.R"))
+source(here("dashboard", "qtr_report", "trend_table.R"))
+source(here("dashboard", "qtr_report", "table_output.R"))
+
 
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
 ```
