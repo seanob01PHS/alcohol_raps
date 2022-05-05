@@ -1,10 +1,14 @@
-#========================================================
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Takes a table with first column as a variable
 # and all subsequent columns are observations and
 # returns a reactable table with the data and a 
 # sparkline for each row
-#--------------------------------------------------------
-table_with_sparklines <- function(table_data, p_m_colouring = FALSE, sparkline_type="line"){
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+table_with_sparklines <- function(table_data,
+                                  p_m_colouring = FALSE,
+                                  sparkline_type="line",
+                                  n_digits = 1){
+  
   big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
   
   table_data_t <- table_data %>%
@@ -21,7 +25,10 @@ table_with_sparklines <- function(table_data, p_m_colouring = FALSE, sparkline_t
   
   #inital columns that we don't need to iterate over
   col_defs <- list(
-    area = colDef(sticky="left", name = "Area", width = 200, 
+    area = colDef(sticky="left",
+                  class ="border-right",
+                  name = "Area",
+                  width = 200, 
                   style = function(value) {
                     if (value %in% big_areas) {
                       font <- "bold"
@@ -35,6 +42,7 @@ table_with_sparklines <- function(table_data, p_m_colouring = FALSE, sparkline_t
     
     sparkline = colDef(name = "Trend",
                        sticky = "right",
+                       class = "border-left",
                        align = "center",
                        cell = function(value, index) {
                          sparkline(table_data_t[[table_data[[index,1]]]] %>% round(2), sparkline_type, list(barColor="#d26146", 
@@ -44,13 +52,18 @@ table_with_sparklines <- function(table_data, p_m_colouring = FALSE, sparkline_t
                        })
                         )
   
-  if (p_m_colouring) {
-    #all the year end columns that are identical
-    for (year_end_col in year_end_group){
-      col_defs[[year_end_col]] <- make_year_end_column(abs_max_vals = abs_maxs)
+  #all the year end columns that are identical
+  for (year_end_col in year_end_group){
+    
+    if (p_m_colouring) {
+      col_defs[[year_end_col]] <- make_roc_column(table_data[year_end_col],
+                                                  col_name = year_end_col,
+                                                  header_str = "")
+    } else {
+      col_defs[[year_end_col]] <- colDef(cell=make_plain_val_col_format(n_digits = n_digits))
     }
+
   }
-  
   
   reactable(table_data,
             columns = col_defs,
@@ -70,39 +83,12 @@ table_with_sparklines <- function(table_data, p_m_colouring = FALSE, sparkline_t
             )
 }
 
-
-p_m_colours <- make_p_m_color_pal(c("#d26146", "#9cc951", "#ffffff"), bias=1.5)
-
-make_year_end_column <- function(abs_max_vals){
-  colDef(
-    align = "right",
-    cell = format_pct,
-    style = function(value){
-    pos_max <- abs_max_vals[[1]]
-    neg_max <- abs_max_vals[[2]]
-    
-    if (value==0 | is.na(value)){
-      scaled <- 0
-    } else if (value > 0){
-      scaled <- value/pos_max
-    } else {
-      scaled <- value/neg_max
-    }
-    
-    list(color = "#111", background = p_m_colours(scaled))
-  })
-}
-
-
-format_pct <- function(value) {
-  if (is.na(value)) "  \u2013  "    # en dash for NAs
-  else {
-    sign_numeric <- sign(value)
-    sign_str <- case_when(sign_numeric==-1~"-",
-                          sign_numeric==+1~"+",
-                          TRUE~"")
-    
-    paste0(sign_str,
-           formatC(paste0(round(abs(value) * 100, digits = 1), "%"), width = 6))
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# Simple function currying of number of digits
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+make_plain_val_col_format <- function(n_digits){
+  function (value){
+    format_val(value, n_digits)
   }
 }
+

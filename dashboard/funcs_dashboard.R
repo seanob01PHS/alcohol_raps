@@ -174,7 +174,7 @@ make_p_m_color_pal <- function(plus_neg_zero_colours, bias = 1) {
 
 
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-# Nice formatting of pct columns
+# Nice formatting of percent columns
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 format_pct <- function(value) {
   if (is.na(value)) "  \u2013  "    # en dash for NAs
@@ -186,6 +186,17 @@ format_pct <- function(value) {
     
     paste0(sign_str,
            paste0(format(round(abs(value) * 100, 1), nsmall = 1), "%"))
+  }
+}
+
+
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# Nice formatting of value columns
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+format_val <- function(value, n_digits){
+  if (is.na(value)) "  \u2013  "    # en dash for NAs
+  else {
+    format(round(value, n_digits), nsmall = n_digits)
   }
 }
 
@@ -269,19 +280,3 @@ val_cell_js <- function(){
   cell_JS
 }
 
-# attempt to add run above function declaration only once. Has not worked
-# as it stands, function is declared for each cell.
-declare_js_quantile_func <- function(){
-  htmlwidgets::JS(" window.quantile = function(arr, q){
-                      const sorted = arr.sort((a, b) => a - b);
-                      const pos = (sorted.length - 1) * q;
-                      const base = Math.floor(pos);
-                      const rest = pos - base;
-                      if (sorted[base + 1] !== undefined) {
-                          return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
-                      } else {
-                          return sorted[base];
-                      }
-                  };")
-  
-}

@@ -4,22 +4,22 @@ source(here("extract", "admissions_qtr", "find_missing_qtr_data.R"))
 
 coordinate_qtr_extract <- function(qtr_start, qtr_end){
   
-  # Connect to SMRA tables using odbc connection
-  # The suppressWarnings function prevents your password from
-  # appearing in the console if the connection is unsuccessful
-  channel <- suppressWarnings(
-    dbConnect(odbc(),
-              dsn = "SMRA",
-              uid = Sys.info()[['user']],
-              pwd = .rs.askForPassword("What is your LDAP password?"))
-  )
-  
-  
   #find missing files
   missing_qtrs_and_files <- find_missing_qtr_data(qtr_start, qtr_end)
   
   # generate the latest data before checking for missing other missing data.
   if(qtr_end %in% (missing_qtrs_and_files %>% map(1))){
+    
+    # Connect to SMRA tables using odbc connection
+    # The suppressWarnings function prevents your password from
+    # appearing in the console if the connection is unsuccessful
+    channel <- suppressWarnings(
+      dbConnect(odbc(),
+                dsn = "SMRA",
+                uid = Sys.info()[['user']],
+                pwd = .rs.askForPassword("What is your LDAP password?"))
+    )
+    
     message(paste0("Generating data for qtr end: ", qtr_end))
     generate_new_qtr_data(qtr_end, channel)
   }
@@ -29,6 +29,15 @@ coordinate_qtr_extract <- function(qtr_start, qtr_end){
 
   # if other files are absent
   if(length(missing_qtrs_and_files)>0){
+    
+    if (!exists(channel)){
+      channel <- suppressWarnings(
+        dbConnect(odbc(),
+                  dsn = "SMRA",
+                  uid = Sys.info()[['user']],
+                  pwd = .rs.askForPassword("What is your LDAP password?"))
+      )
+    }
     
     missing_bits_str <- 
       missing_qtrs_and_files %>% 

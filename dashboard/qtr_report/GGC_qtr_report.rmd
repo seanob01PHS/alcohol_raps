@@ -36,16 +36,16 @@ data_dir <- here("output", "admissions_qtr_data", "accumulated", paste0("qtr_alc
 data <- read_csv(data_dir) %>% 
   select(-lookup) %>% 
   mutate(date_end = ymd(date_end),
-         EASR=round(EASR, 2),
          area=recode(area, `NHS Greater Glasgow and Clyde`="NHS GGC"))
 
 source(here("dashboard", "funcs_wrangle.R"))
 source(here("dashboard", "funcs_dashboard.R"))
-source(here("dashboard", "qtr_report", "trend_table.R"))
-source(here("dashboard", "qtr_report", "table_output.R"))
-
+source(here("dashboard", "qtr_report", "process_wrangle_qtr_roc.R"))
+source(here("dashboard", "qtr_report", "table_output_qtr.R"))
 
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
+
+p_m_colours <- make_p_m_color_pal(c("#d26146", "#9cc951", "#ffffff"), bias=1.5)
 ```
 
 Notes {data-icon="fa-info-circle"}
@@ -113,39 +113,39 @@ row {.tabset data-height=390}
 ### EASR
 
 ```{r reactable_2}
-trend_table_data_2 <- trend_table_data(data, "EASR")
+trend_table_data_2 <- format_and_pivot(data, "EASR")
 
 trend_table_data_2 %>% 
   download_this(
     output_name = "EASR trends",
-    output_extension = ".csv",
-    button_label = "Download data as csv",
+    output_extension = ".xlsx",
+    button_label = "Download Data",
     button_type = "primary",
     has_icon = TRUE,
     icon = "fa fa-save",
     csv2 = FALSE
   )
 
-table_with_sparklines(trend_table_data_2)
+table_with_sparklines(trend_table_data_2, n_digits = 1)
 
 ```
 
 ### Number
 ```{r reactable_1}
-trend_table_data_1 <- trend_table_data(data, "number")
+trend_table_data_1 <- format_and_pivot(data, "number")
 
 trend_table_data_1 %>% 
   download_this(
     output_name = "Number trends",
-    output_extension = ".csv",
-    button_label = "Download data as csv",
+    output_extension = ".xlsx",
+    button_label = "Download Data",
     button_type = "primary",
     has_icon = TRUE,
     icon = "fa fa-save",
     csv2 = FALSE
   )
 
-table_with_sparklines(trend_table_data_1)
+table_with_sparklines(trend_table_data_1, n_digits = 0)
 
 ```
 

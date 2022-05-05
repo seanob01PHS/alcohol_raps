@@ -6,9 +6,8 @@
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 
-
 # This script should be in the following location for it to work
-# "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/Regular Report RAPs"
+# "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/Regular Report RAPs/"
 
 library(here)
 library(tidyverse)
@@ -42,12 +41,13 @@ qtr_end <- ymd("2021-09-30")
 
 
 
+
 #coordinates and runs the data extract
 coordinate_qtr_extract(qtr_start, qtr_end)
 
 #creates the output
 rmarkdown::render(here("dashboard", "qtr_report", "GGC_qtr_report.rmd"),
-     output_file = here("output", "reports", paste0("GGC_qtr_report_", qtr_start, "_to_", qtr_end, ".html")),
+     output_file = here("output", "reports", "qtr", paste0("GGC_qtr_report_", qtr_start, "_to_", qtr_end, ".html")),
      params = list(qtr_start = qtr_start,
                    qtr_end = qtr_end)
      )

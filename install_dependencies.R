@@ -1,0 +1,38 @@
+
+install.packages(c(
+  'remotes',
+	'htmlwidgets',
+	'rmarkdown',
+	'flexdashboard',
+	'shiny',
+	'crosstalk',
+	'downloadthis',
+	'here',
+	'htmltools',
+	'knitr',
+	'openxlsx',
+	'plotly',
+	'purrr',
+	'reactable',
+	'sjmisc',
+	'stringr',
+	'tidyverse',
+	'dplyr',
+	'lubridate',
+	'DT',
+	'data.table',
+	'haven',
+	'janitor',
+	'odbc',
+	'readr',
+	'tibble',
+	'tidyr',
+	'zoo',
+	'readxl',
+	'writexl'
+))
+
+remotes::install_github("Bart6114/sparklines")
+remotes::install_github("glin/reactable")
+remotes::install_github("Public-Health-Scotland/phsstyles")
+remotes::install_github("Public-Health-Scotland/phsmethods")

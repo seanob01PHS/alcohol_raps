@@ -1,43 +1,4 @@
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-# returns a list of [indicator, indicator_cur_year, indicator_prev_year]
-# to help in calculating "difference from previous year" columns
-#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-rate_pairings <- function(data){
-  #list of [[recent_col_1, old_col_1], [recent_col_2, old_col_2]...]
-  column_pairings <- list()
-  
-  #names of columns that represent a value (not a difference etc)
-  names_of_vals <- data %>% names()
-  #starts with "val||"
-  names_of_vals <- Filter(function(x) grepl("^(val\\|\\|)", x), names_of_vals)
-  
-  col_infos <- val_col_infos(names_of_vals)
-  indicators <- col_infos[[1]]
-  year_strs <- col_infos[[2]]
-  year_starts <- col_infos[[3]]
-  
-  for (indicator in indicators %>% unique()){
-    indicator_indexs <- which(indicator == indicators)
-    
-    max_year_start <- year_starts[indicator_indexs] %>% max()
-    min_year_start <- year_starts[indicator_indexs] %>% min()
-    
-    max_year_str <- year_strs[[which(indicator==indicators & max_year_start==year_starts)]]
-    min_year_str <- year_strs[[which(indicator==indicators & min_year_start==year_starts)]]
-
-    
-    column_pairings[[length(column_pairings)+1]] <- list(indicator,
-                                                         paste0("val||", indicator, "||", max_year_str, "||", max_year_start),
-                                                         paste0("val||", indicator, "||", min_year_str, "||", min_year_start))
-  }
-
-  column_pairings
-}
-
-
-
-
-#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Returns a df with all the columns ready to be displayed as they are
 # in the profile tab of the alcohol harms workbook
 
@@ -65,7 +26,7 @@ make_profile_frame <- function(data, population_year){
   data_f <- data %>%
     #choosing the most recent and second most recent dates
     filter(year_start == most_recent_dates[indicator] |
-           year_start == unlist(most_recent_dates[indicator]) - 1)
+             year_start == unlist(most_recent_dates[indicator]) - 1)
   
   # Column names are coded as
   # "val"||indicator||Year string||year start corr. to that year string
@@ -100,7 +61,7 @@ make_profile_frame <- function(data, population_year){
       pull(rate) %>% 
       .[[1]]
     
-
+    
     ggc_figs[[indicator_f]] <- data_f %>% 
       filter(year_start == most_recent_dates[[indicator_f]],
              indicator == indicator_f,
@@ -127,6 +88,43 @@ make_profile_frame <- function(data, population_year){
     select(-all_of(unlist(old_cols))) %>% 
     left_join(populations, by="iz") %>% 
     rename(!!paste0("pop||", as.character(population_year)) := pop)
+}
+
+
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# returns a list of [indicator, indicator_cur_year, indicator_prev_year]
+# to help in calculating "difference from previous year" columns
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+rate_pairings <- function(data){
+  #list of [[recent_col_1, old_col_1], [recent_col_2, old_col_2]...]
+  column_pairings <- list()
+  
+  #names of columns that represent a value (not a difference etc)
+  names_of_vals <- data %>% names()
+  #starts with "val||"
+  names_of_vals <- Filter(function(x) grepl("^(val\\|\\|)", x), names_of_vals)
+  
+  col_infos <- val_col_infos(names_of_vals)
+  indicators <- col_infos[[1]]
+  year_strs <- col_infos[[2]]
+  year_starts <- col_infos[[3]]
+  
+  for (indicator in indicators %>% unique()){
+    indicator_indexs <- which(indicator == indicators)
+    
+    max_year_start <- year_starts[indicator_indexs] %>% max()
+    min_year_start <- year_starts[indicator_indexs] %>% min()
+    
+    max_year_str <- year_strs[[which(indicator==indicators & max_year_start==year_starts)]]
+    min_year_str <- year_strs[[which(indicator==indicators & min_year_start==year_starts)]]
+
+    
+    column_pairings[[length(column_pairings)+1]] <- list(indicator,
+                                                         paste0("val||", indicator, "||", max_year_str, "||", max_year_start),
+                                                         paste0("val||", indicator, "||", min_year_str, "||", min_year_start))
+  }
+
+  column_pairings
 }
 
 

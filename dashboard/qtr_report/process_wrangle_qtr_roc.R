@@ -1,30 +1,19 @@
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-# Makes the simplified table data
-# from the input DataFrame
-# Each column is a year and each row is
-# an area. The cells represent the value in
-# the column val_name
-#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-trend_table_data <- function(data, val_name){
-  data %>%
-    format_and_pivot(val_name)
-}
-
-
-#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-# Makes a relative change (percentage of first column) table from data
+# Makes a relative change (rel first column) table from data
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 relative_change_table_data <- function(data, val_name){
   data_f <- data %>%
     format_and_pivot(val_name) %>% 
     # everything as percentage of first date (column 2)
-    mutate_if(is.numeric, change_percentage, .[[2]])
+    mutate_if(is.numeric, zero_safe_rate_of_change, .[[2]])
   data_f[2] <- NA
   
   data_f
 }
 
-
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# Makes a relative change (rolling rel previous column) table from data
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 year_on_year_change <- function(data, val_name){
   data_i <- data %>% 
     format_and_pivot(val_name)
@@ -43,8 +32,13 @@ year_on_year_change <- function(data, val_name){
   data_f
 }
 
-
-
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# Makes the simplified table data
+# from the input DataFrame
+# Each column is a year and each row is
+# an area. The cells represent the value in
+# the column val_name
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 format_and_pivot <- function(data, val_name){
   big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
   data %>%
@@ -54,12 +48,6 @@ format_and_pivot <- function(data, val_name){
     pivot_wider(names_from = "date_end", values_from = val_name) %>%
     #put big areas at bottom
     arrange(area %in% big_areas, area)
-}
-
-
-
-change_percentage <- function(col, init_col){
-  (col/init_col - 1)
 }
 
 

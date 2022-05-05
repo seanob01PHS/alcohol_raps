@@ -47,10 +47,13 @@ source(here("extract", "profile_annual", "coordinate_profile_extract.R"))
 # please refer to the SOP or look at code below to 
 # see what the start/end years imply for these.
 
-# earliest calendar year that wholly appears in each type of extract
+
+# earliest cal year that wholly appears in each type of extract
 start_year <- 2015
-# latest calendar year that wholly appears in each type of extract
+
+# latest cal year that wholly appears in each type of extract
 end_year <- 2021
+
 
 # Run both false if not debugging. 
 # This will save the raw extracts to a cache.
@@ -113,7 +116,7 @@ profile_extract_outputs[["output"]] %>%
 population_year <- profile_extract_outputs[["population_year"]]
 
 # creates (renders) the html output
-outfile <- here("output", "reports", paste0("GGC_profile_report_", start_year_str, "_to_", end_year_str, ".html"))
+outfile <- here("output", "reports", "profile", paste0("GGC_profile_report_", start_year_str, "_to_", end_year_str, ".html"))
 rmarkdown::render(here("dashboard", "profile_report", "GGC_profile_report.rmd"),
                   output_file = outfile,
                   params = list(start_year = start_year_str,

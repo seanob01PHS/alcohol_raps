@@ -28,7 +28,7 @@ library(phsstyles)
 library(plotly)
 library(stringr)
 library(crosstalk)
-library(DT)
+library(htmltools)
 library(sjmisc)
 library(downloadthis)
 library(here)
@@ -65,14 +65,21 @@ data <- data %>%
   mutate(hscp = hscp_locality) %>% 
   select(-hscp_locality)
 
+# wrangles the year_end column
 data <- data %>% process_year()
+
 #selecting the rows in the right order
 data <- data[c("iz", "iz_name", "year_start", "year_str", "hscp", "indicator", "pop", "number", "rate")]
 
 # Latest financial year (siunce "/"" is arranaged last) displayed in notes page
 latest_year_str <- data %>% arrange(year_str) %>% pull(year_str) %>% unique %>% tail(1)
 
+# Areas that are highlighted in the tables
 big_areas <- c("Scotland", "NHS Greater Glasgow and Clyde", "NHS GGC")
+
+# Colours for profile_table
+p_m_colours <- make_p_m_color_pal(c("#d26146", "#9cc951", "#ffffff"), bias=10)
+val_colours <- make_p_m_color_pal(c("#EAC43A", "#9cc951", "#ffffff"), bias=1.5)
 
 
 ```

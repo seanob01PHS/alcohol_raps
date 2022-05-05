@@ -1,5 +1,10 @@
-library(htmltools)
-
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+# Gathers all necessary components and returns a reactable table.
+# Need to send it a tibble and SharedData (crosstalk) equivalent of 
+# that table. All wrangling and processing is done on the tibble
+# and the shared_table is what is actually displayed. This allowd for
+# use of crosstalk in the parent envir of this function
+#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 profile_table <- function(all_data, shared_table, all_default_cols=TRUE){
   
   populations <- all_data %>%
@@ -94,18 +99,10 @@ col_group_header <- function(header_name){
 
 
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-# Colours for profile_table
-#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-p_m_colours <- make_p_m_color_pal(c("#d26146", "#9cc951", "#ffffff"), bias=10)
-val_colours <- make_p_m_color_pal(c("#EAC43A", "#9cc951", "#ffffff"), bias=1.5)
-
-
-#{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Returns a list of details for each row
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 details_generator <- function(data, populations, population_year){
-  
-  
+
   details_data <- data %>% select(contains("diff vs||"))
   details_df_list <- split(details_data, seq(nrow(details_data)))
   
@@ -141,19 +138,19 @@ details_generator <- function(data, populations, population_year){
   non_diff_col_names <- names(details_df_list[[1]])[-which(details_df_list[[1]] %>% names == diff_col_name)]
   
   for (col in non_diff_col_names){
-    #THIS IS IMPORTANT
+    # \/ \/ \/ THIS IS IMPORTANT \/ \/ \/
+    force(col)
+    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     # the environment of the variable decalred in a for loop
     # was not as local as I expected.
     # This was causing weird and annoying bugs
-    my_col <- col
-    details_col_defs[[my_col]] <- colDef(show = TRUE,
+    force(col)
+    details_col_defs[[col]] <- colDef(show = TRUE,
                                       format = colFormat(digits=2),
                                       html = TRUE,
-                                      cell = details_format_generator(get_abs_p_m_max(details_pivoted_full[my_col])),
+                                      cell = details_format_generator(get_abs_p_m_max(details_pivoted_full[col])),
                                       headerClass = "details_head")
   }
-  
-  
   
   function(index){
     div(

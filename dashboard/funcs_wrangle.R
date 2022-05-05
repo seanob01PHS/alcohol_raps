@@ -1,14 +1,11 @@
 # Utility functions for dashboard creation
 
-
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Returns the first non-NA element in a list
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 first_non_na <- function(grp){
   first(na.omit(grp))
 }
-
-
 
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Vectorised rate of change where
@@ -31,7 +28,6 @@ reorder_indicators <- function(indicators, order){
   }
   order
 }
-
 
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Gets and returns a dt with iz and population
@@ -60,7 +56,6 @@ process_year <- function(data){
   
 }
 
-
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Gives the most up to date `year_start` for a given
 # indicator 
@@ -68,9 +63,6 @@ process_year <- function(data){
 most_up_to_date_date <- function(data, indicator_f){
   data %>% filter(indicator==indicator_f) %>% pull(year_start) %>% max()
 }
-
-
-
 
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Returns the first non-NA element in a list
@@ -83,7 +75,6 @@ val_col_infos <- function(value_col_names){
   
   list(indicators, year_strs, year_starts)
 }
-
 
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 # Filters IZs only
