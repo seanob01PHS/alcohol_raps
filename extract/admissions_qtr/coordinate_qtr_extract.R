@@ -2,7 +2,10 @@ source(here("extract", "admissions_qtr", "generate_new_qtr_data.R"))
 source(here("extract", "admissions_qtr", "accumulate_qtr_extracts.R"))
 source(here("extract", "admissions_qtr", "find_missing_qtr_data.R"))
 
-coordinate_qtr_extract <- function(qtr_start, qtr_end){
+coordinate_qtr_extract <- function(qtr_start,
+                                   qtr_end,
+                                   hscp_pop_lookup_path,
+                                   hb_pop_lookup_path){
   
   #find missing files
   missing_qtrs_and_files <- find_missing_qtr_data(qtr_start, qtr_end)
@@ -21,7 +24,10 @@ coordinate_qtr_extract <- function(qtr_start, qtr_end){
     )
     
     message(paste0("Generating data for qtr end: ", qtr_end))
-    generate_new_qtr_data(qtr_end, channel)
+    generate_new_qtr_data(qtr_end,
+                          channel,
+                          hscp_pop_lookup_path,
+                          hb_pop_lookup_path)
   }
 
   # update the missing files
@@ -29,15 +35,6 @@ coordinate_qtr_extract <- function(qtr_start, qtr_end){
 
   # if other files are absent
   if(length(missing_qtrs_and_files)>0){
-    
-    if (!exists(channel)){
-      channel <- suppressWarnings(
-        dbConnect(odbc(),
-                  dsn = "SMRA",
-                  uid = Sys.info()[['user']],
-                  pwd = .rs.askForPassword("What is your LDAP password?"))
-      )
-    }
     
     missing_bits_str <- 
       missing_qtrs_and_files %>% 
@@ -47,7 +44,7 @@ coordinate_qtr_extract <- function(qtr_start, qtr_end){
                         reduce(paste0))) %>% 
             reduce(paste0)
                   
-    
+
     message(paste0("\nError: certain necessary qtr files are not present in the folder:\n\t",
                    here("output", "admissions_qtr_data"), "\n--------------------------------\n",
                    missing_bits_str, "\n"
@@ -62,13 +59,25 @@ coordinate_qtr_extract <- function(qtr_start, qtr_end){
       stop("Stopping. Necessary files not present.")
     }
     
+    if (!exists("channel")){
+      channel <- suppressWarnings(
+        dbConnect(odbc(),
+                  dsn = "SMRA",
+                  uid = Sys.info()[['user']],
+                  pwd = .rs.askForPassword("What is your LDAP password?"))
+      )
+    }
+    
     # generate the files
     dates_to_generate <- missing_qtrs_and_files %>% 
       map(1)
     
     for(qtr_end in dates_to_generate){
       message(paste0("Generating data for qtr end: ", qtr_end))
-      generate_new_qtr_data(qtr_end, channel)
+      generate_new_qtr_data(qtr_end,
+                            channel,
+                            hscp_pop_lookup_path,
+                            hb_pop_lookup_path)
     }
     
   }

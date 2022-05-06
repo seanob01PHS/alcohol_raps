@@ -1,5 +1,6 @@
 # 2013 - 2019 Scotland and GGC hb, ca and iz populations
-pop_lookups <- function(years_needed){
+pop_lookups <- function(years_needed,
+                        pop_lookup_path){
   
   browser()
   
@@ -9,11 +10,8 @@ pop_lookups <- function(years_needed){
     select(-c(intermediate_zone_name, population_2018_sape)) %>% 
     rename(int_zone2011 = intermediate_zone_code)
   
-  # Interzone populations
-  estimates_folder <- '/conf/linkage/output/lookups/Unicode/Populations/Estimates/'
-  dz_file <- "DataZone2011_pop_est_2011_2020.rds"
   
-  pop_file <- readRDS(paste0(estimates_folder, dz_file)) %>% 
+  pop_file <- readRDS(pop_lookup_path) %>% 
     clean_names() %>% 
     rename(int_zone2011 = intzone2011)
   

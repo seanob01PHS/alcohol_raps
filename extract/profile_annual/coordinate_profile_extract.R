@@ -12,14 +12,18 @@ coordinate_profile_extract <- function(start_year_str,
                                        smr04_end_date,
                                        deaths_start_date,
                                        deaths_end_date,
+                                       pop_lookup_path,
                                        save_cache = FALSE,
                                        load_from_cache = FALSE){
   
   # Source all extract files
-  list.files(path = here("extract", "profile_annual", "db_extract"),
-             pattern = "*.R",
-             full.names = TRUE) %>% 
-    walk(source)
+  # list.files(path = here("extract", "profile_annual", "db_extract"),
+  #            pattern = "*.R",
+  #            full.names = TRUE) %>% 
+  #   walk(source)
+  # 
+  source(here("extract", "profile_annual", "db_extract.R"))
+  
   
   # Source all wrangle files
   list.files(path = here("extract", "profile_annual", "wrangle"),
@@ -84,7 +88,7 @@ coordinate_profile_extract <- function(start_year_str,
   pop_years_needed <- (as.double(start_year_str)-2):as.double(end_year_str)
   
   # pop lookup
-  pop_lookup_total <- pop_lookups(pop_years_needed)
+  pop_lookup_total <- pop_lookups(pop_years_needed, pop_lookup_path)
   fin_year_pops <- pop_lookup_total[["fin_year_pops"]]
   cal_year_pops <- pop_lookup_total[["cal_year_pops"]]
   

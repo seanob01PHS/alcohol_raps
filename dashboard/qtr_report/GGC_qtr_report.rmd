@@ -17,6 +17,7 @@ params:
 
 ```{r setup, include=FALSE}
 library(here)
+library(htmltools)
 library(tidyverse)
 library(knitr)
 library(lubridate)

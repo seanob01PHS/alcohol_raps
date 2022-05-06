@@ -5,7 +5,9 @@
 # and the shared_table is what is actually displayed. This allowd for
 # use of crosstalk in the parent envir of this function
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-profile_table <- function(all_data, shared_table, all_default_cols=TRUE){
+profile_table <- function(all_data,
+                          shared_table,
+                          all_default_cols=TRUE){
   
   populations <- all_data %>%
     select(contains("pop"), iz) %>% 

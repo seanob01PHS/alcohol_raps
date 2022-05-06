@@ -55,9 +55,15 @@ start_year <- 2015
 end_year <- 2021
 
 
+# Population lookup file
+# Edit this when new population data becomes available
+pop_lookup_path <- paste0("/conf/linkage/output/lookups/Unicode/Populations/Estimates/",
+                          "DataZone2011_pop_est_2011_2020.rds")
+
+
 # Run both false if not debugging. 
 # This will save the raw extracts to a cache.
-# for 2015 to 2021, this file was ~118Mb!! Remeber to delete after use.
+# for 2015 to 2021, this file was ~118Mb!! Delete after use.
 save_cache <-  FALSE
 
 # To load from cache instead of running extract.
@@ -107,6 +113,7 @@ profile_extract_outputs <- coordinate_profile_extract(start_year_str,
                                                       smr04_end_date,
                                                       deaths_start_date,
                                                       deaths_end_date,
+                                                      pop_lookup_path,
                                                       save_cache = save_cache,
                                                       load_from_cache = load_from_cache)
 

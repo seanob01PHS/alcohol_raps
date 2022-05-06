@@ -8,7 +8,6 @@
 
 # This script should be in the following location for it to work
 # "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/Regular Report RAPs/"
-
 library(here)
 library(tidyverse)
 library(knitr)
@@ -30,6 +29,7 @@ here::i_am("make_qtr_report.R")
 source(here("extract", "admissions_qtr", "coordinate_qtr_extract.R"))
 
 
+#~~~ User Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # The end of the first quarter you want to appear in the report
 # Must be the last date in a quarter
@@ -37,13 +37,23 @@ qtr_start <- ymd("2019-06-30")
 
 # The end of the latest quarter you want to appear in the report
 # Must be the last date in a quarter
-qtr_end <- ymd("2021-09-30")
+qtr_end <- ymd("2021-12-31")
 
+# Population lookup files
+# Edit these when new population data becomes available
+hscp_pop_lookup_path <- paste0("/conf/linkage/output/lookups/Unicode/Populations/Estimates/",
+                               "HSCP2019_pop_est_5year_agegroups_1981_2020.rds")
 
+hb_pop_lookup_path <- paste0("/conf/linkage/output/lookups/Unicode/Populations/Estimates/",
+                             "HB2019_pop_est_5year_agegroups_1981_2020.rds")
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #coordinates and runs the data extract
-coordinate_qtr_extract(qtr_start, qtr_end)
+coordinate_qtr_extract(qtr_start,
+                       qtr_end,
+                       hscp_pop_lookup_path,
+                       hb_pop_lookup_path)
 
 #creates the output
 rmarkdown::render(here("dashboard", "qtr_report", "GGC_qtr_report.rmd"),

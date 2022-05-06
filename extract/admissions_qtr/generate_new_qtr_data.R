@@ -25,7 +25,10 @@ library(haven)
 library(phsmethods)
 
 
-generate_new_qtr_data <- function(date_end, channel){
+generate_new_qtr_data <- function(date_end,
+                                  channel,
+                                  hscp_pop_lookup_path,
+                                  hb_pop_lookup_path){
   
   ################################################################
   ##### Set file names and folders
@@ -47,12 +50,12 @@ generate_new_qtr_data <- function(date_end, channel){
   # HSCP pop
   filename.pop.hscp = "HSCP2019_pop_est_5year_agegroups_1981_2020.rds"
   filepath.pop.hscp = "/conf/linkage/output/lookups/Unicode/Populations/Estimates/"
-  filepathname.pop.hscp = paste0(filepath.pop.hscp, filename.pop.hscp)
+  hscp_pop_lookup_path = paste0(filepath.pop.hscp, filename.pop.hscp)
   
   # HB pop
   filename.pop.hb = "HB2019_pop_est_5year_agegroups_1981_2020.rds"
   filepath.pop.hb = "/conf/linkage/output/lookups/Unicode/Populations/Estimates/"
-  filepathname.pop.hb = paste0(filepath.pop.hb, filename.pop.hb)
+  hb_pop_lookup_path = paste0(filepath.pop.hb, filename.pop.hb)
   
   # Euro std pop
   filename.pop.std = "ESP2013 by sex.csv"
@@ -101,7 +104,7 @@ generate_new_qtr_data <- function(date_end, channel){
   alc_diag <- "E244|E512|F10|G312|G621|G721|I426|K292|K70|K852|K860|O354|P043|Q860|R780|T510|T511|T519|X45|X65|Y15|Y573|Y90|Y91|Z502|Z714|Z721"
   
   # define SQL Query
-  data_episodes <- tbl_df(dbGetQuery(channel, statement= paste0(
+  data_episodes <- as_tibble(dbGetQuery(channel, statement= paste0(
     "SELECT LINK_NO, CIS_MARKER, ADMISSION_DATE, DISCHARGE_DATE, ADMISSION_TYPE, INPATIENT_DAYCASE_IDENTIFIER, DISCHARGE_TRANSFER_TO,
     UPI_NUMBER, SEX, AGE_IN_YEARS, LENGTH_OF_STAY,
     MAIN_CONDITION, OTHER_CONDITION_1, OTHER_CONDITION_2, OTHER_CONDITION_3, OTHER_CONDITION_4, OTHER_CONDITION_5,
@@ -205,21 +208,48 @@ generate_new_qtr_data <- function(date_end, channel){
   ### Choose year from when the mid-year populatin date (30 June) falls within the date time period
   
   # set popyear date with only day / month format
-  # dont worry, the use of 2020 here is completely arbitrary
-  popmidyear_daymonth = format(as_date("2020-06-30"), format="%d-%m")
+  # dont worry, the use of 1901 here is completely arbitrary
+  pop_midyear_month_day = format(as_date("1901-06-30"), format="%m-%d")
   
   # convert start date to day / month format 
-  date_start_daymonth <- format(as_date(date_start), format="%d-%m")
+  date_start_month_day <- format(as_date(date_start), format="%m-%d")
   
   # get pop year - if start date is before mid year then use start date year if not use end date year 
-  data_popyear <- ifelse(date_start_daymonth <= popmidyear_daymonth, year(as_date(date_start)), year(as_date(date_end)))
+  data_popyear <- ifelse(date_start_month_day <= pop_midyear_month_day, year(as_date(date_start)), year(as_date(date_end)))
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # checking that data_popyear exists in the data
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  hscp_pops <- read_rds(hscp_pop_lookup_path)
+  hb_pops <- read_rds(hb_pop_lookup_path)
+  
+  # years available in hscp pops
+  available_pop_years <- hscp_pops %>%
+    pull(year) %>% 
+    unique()
+  
+  # years available in both hscp pops and hb pops
+  available_pop_years <- hb_pops %>% 
+    pull(year) %>% 
+    unique() %>% 
+    intersect(., available_pop_years)
+  
+  # year present in data that is closest to data_popyear
+  year_available_closest_to_popyear <- available_pop_years[[which.min(abs(data_popyear - available_pop_years))]]
   
   
+  if (data_popyear != year_available_closest_to_popyear){
+    message(paste0("Population data not available for year ", data_popyear, 
+                   "\n↳ Substituded in population data from ", year_available_closest_to_popyear, "."))
+    data_popyear <- year_available_closest_to_popyear
+  }
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ### HSCP pop
   
   # read in data
-  pop.hscp <- readRDS(filepathname.pop.hscp) %>%
+  pop.hscp <- readRDS(hscp_pop_lookup_path) %>%
     select(-hscp2018, -hscp2016) %>%
     rename(popyear = year, hscp = hscp2019, hscp_name = hscp2019name)
   
@@ -266,7 +296,7 @@ generate_new_qtr_data <- function(date_end, channel){
   ### HB pop
   
   # read in data
-  pop.hb <- readRDS(filepathname.pop.hb) %>%
+  pop.hb <- readRDS(hb_pop_lookup_path) %>%
     select(-hb2018, -hb2014) %>%
     rename(popyear = year, hbres = hb2019, hbres_name = hb2019name)
   
