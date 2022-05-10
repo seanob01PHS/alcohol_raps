@@ -2,7 +2,6 @@
 pop_lookups <- function(years_needed,
                         pop_lookup_path){
   
-  browser()
   
   # File with Interzones and associated hscp localities 
   int_locality_names <- read_xlsx('/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/admin/work spec/docs sent/Alcohol Related Events NHSGGC updated 10dec19.xlsx', sheet = 'NHSGGC Ranked Rates', 'B10:E268') %>% 

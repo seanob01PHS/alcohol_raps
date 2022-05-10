@@ -123,9 +123,11 @@ profile_extract_outputs[["output"]] %>%
 population_year <- profile_extract_outputs[["population_year"]]
 
 # creates (renders) the html output
+message(".... rendering output.")
 outfile <- here("output", "reports", "profile", paste0("GGC_profile_report_", start_year_str, "_to_", end_year_str, ".html"))
 rmarkdown::render(here("dashboard", "profile_report", "GGC_profile_report.rmd"),
                   output_file = outfile,
                   params = list(start_year = start_year_str,
                                 end_year = end_year_str,
-                                population_year = population_year))
+                                population_year = population_year),
+                  quiet = TRUE)

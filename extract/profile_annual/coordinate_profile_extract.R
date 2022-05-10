@@ -94,7 +94,7 @@ coordinate_profile_extract <- function(start_year_str,
   
   
   # postcode lookup
-  postcode_lookup <- read.csv('/conf/linkage/output/lookups/Unicode/Geography/Scottish Postcode Directory/Scottish_Postcode_Directory_2021_2.csv',
+  postcode_lookup <- read.csv('/conf/linkage/output/lookups/Unicode/Geography/Scottish Postcode Directory/Scottish_Postcode_Directory_2022_1.csv',
                               stringsAsFactors=F) %>%
     clean_names() %>%
     select(pc7, intzone2011) %>%

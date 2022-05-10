@@ -23,7 +23,6 @@ coordinate_qtr_extract <- function(qtr_start,
                 pwd = .rs.askForPassword("What is your LDAP password?"))
     )
     
-    message(paste0("Generating data for qtr end: ", qtr_end))
     generate_new_qtr_data(qtr_end,
                           channel,
                           hscp_pop_lookup_path,
@@ -80,6 +79,10 @@ coordinate_qtr_extract <- function(qtr_start,
                             hb_pop_lookup_path)
     }
     
+  }
+  
+  if (exists("channel")){
+    dbDisconnect(channel)
   }
   
   # all the files dealt with above put in to one file filtered for

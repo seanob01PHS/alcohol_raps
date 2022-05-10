@@ -9,63 +9,26 @@
 ###### Load packages
 ################################################################
 
-# Note - make sure to load odbc before loading tidyverse
-library(odbc)
-library(janitor)
-library(lubridate)
-library(zoo)
-
-# tidyverse packages
-library(dplyr)
-library(tidyr)
-library(readr)
-library(tibble)
-library(stringr) 
-library(haven)
-library(phsmethods)
-
-
 generate_new_qtr_data <- function(date_end,
                                   channel,
                                   hscp_pop_lookup_path,
                                   hb_pop_lookup_path){
   
-  ################################################################
-  ##### Set file names and folders
-  ################################################################
+  message(paste0("\nGenerating data for qtr end: ", date_end,
+                 "\n-------------"))
   
-  # set working directory to project folder
-  #setwd("/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/EASR/")
-  
-  
+
   ## Set folder locations 
   dir <- getwd()
   
   # output
   data.out = "output/admissions_qtr_data/"
   
-  
   ## Lookups
-  
-  # HSCP pop
-  filename.pop.hscp = "HSCP2019_pop_est_5year_agegroups_1981_2020.rds"
-  filepath.pop.hscp = "/conf/linkage/output/lookups/Unicode/Populations/Estimates/"
-  hscp_pop_lookup_path = paste0(filepath.pop.hscp, filename.pop.hscp)
-  
-  # HB pop
-  filename.pop.hb = "HB2019_pop_est_5year_agegroups_1981_2020.rds"
-  filepath.pop.hb = "/conf/linkage/output/lookups/Unicode/Populations/Estimates/"
-  hb_pop_lookup_path = paste0(filepath.pop.hb, filename.pop.hb)
-  
   # Euro std pop
   filename.pop.std = "ESP2013 by sex.csv"
   filepath.pop.std = "/conf/LIST_analytics/Glasgow City/#lookups/Populations/standard/"
   filepathname.pop.std = paste0(filepath.pop.std, filename.pop.std)
-  
-  # issues with sav files - converted to csv instead
-  #filename.pop.std = "ESP2013_by_sex.sav"
-  #filepath.pop.std = "/conf/linkage/output/lookups/Unicode/Populations/Standard/"
-  #filepathname.pop.std = paste0(filepath.pop.std, filename.pop.std)
   
   
   ################################################################
@@ -125,9 +88,6 @@ generate_new_qtr_data <- function(date_end,
     or regexp_like(other_condition_5,'", alc_diag ,"')))
     ORDER BY LINK_NO, ADMISSION_DATE, DISCHARGE_DATE, ADMISSION, DISCHARGE, URI" ))) %>%  #smra guidance suggests always sorting the data in this order to arrange episodes into chronolgical order for each stay))) %>% 
     setNames(tolower(names(.)))  #variables to lower case
-  
-  # Close odbc connection
-  dbDisconnect(channel)
   
   
   #############################################

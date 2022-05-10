@@ -34,7 +34,7 @@ if ("default" %in% params){
 }
 
 data_dir <- here("output", "admissions_qtr_data", "accumulated", paste0("qtr_alc_adm_GGC_", params$qtr_start, "_to_", params$qtr_end, ".csv"))
-data <- read_csv(data_dir) %>% 
+data <- read_csv(data_dir, show_col_types = FALSE) %>% 
   select(-lookup) %>% 
   mutate(date_end = ymd(date_end),
          area=recode(area, `NHS Greater Glasgow and Clyde`="NHS GGC"))

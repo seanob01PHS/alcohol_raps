@@ -5,19 +5,21 @@
 #
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
-
-# This script should be in the following location for it to work
-# "/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/Regular Report RAPs/"
 library(here)
+library(odbc)
 library(tidyverse)
 library(knitr)
 library(lubridate)
 library(reactable)
 library(sparklines)
 library(phsstyles)
+library(phsmethods)
 library(plotly)
 library(downloadthis)
 library(purrr)
+library(janitor)
+library(lubridate)
+library(zoo)
 
 # set proj wd
 setwd("/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/Regular Report RAPs/")
@@ -28,9 +30,7 @@ here::i_am("make_qtr_report.R")
 #source the coordinate function
 source(here("extract", "admissions_qtr", "coordinate_qtr_extract.R"))
 
-
 #~~~ User Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 # The end of the first quarter you want to appear in the report
 # Must be the last date in a quarter
 qtr_start <- ymd("2019-06-30")
@@ -46,7 +46,6 @@ hscp_pop_lookup_path <- paste0("/conf/linkage/output/lookups/Unicode/Populations
 
 hb_pop_lookup_path <- paste0("/conf/linkage/output/lookups/Unicode/Populations/Estimates/",
                              "HB2019_pop_est_5year_agegroups_1981_2020.rds")
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #coordinates and runs the data extract
@@ -56,9 +55,11 @@ coordinate_qtr_extract(qtr_start,
                        hb_pop_lookup_path)
 
 #creates the output
+message(".... rendering output.")
 rmarkdown::render(here("dashboard", "qtr_report", "GGC_qtr_report.rmd"),
      output_file = here("output", "reports", "qtr", paste0("GGC_qtr_report_", qtr_start, "_to_", qtr_end, ".html")),
      params = list(qtr_start = qtr_start,
-                   qtr_end = qtr_end)
+                   qtr_end = qtr_end),
+     quiet = TRUE
      )
 
