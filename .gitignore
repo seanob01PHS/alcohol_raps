@@ -4,5 +4,9 @@
 .Ruserdata
 
 *.[Hh][Tt][Mm][Ll]
+*.[Cc][Ss][Vv]
+*.[Rr][Dd][Ss]
+
 
 output/
+!*.gitkeep
