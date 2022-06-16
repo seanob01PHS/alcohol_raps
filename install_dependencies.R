@@ -29,7 +29,8 @@ install.packages(c(
 	'tidyr',
 	'zoo',
 	'readxl',
-	'writexl'
+	'writexl',
+  'haven'
 ))
 
 remotes::install_github("Bart6114/sparklines")

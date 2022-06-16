@@ -56,10 +56,13 @@ end_year <- 2021
 
 
 # Population lookup file
-# Edit this when new population data becomes available
+# Edit this when new population data becomes available (annual)
 pop_lookup_path <- paste0("/conf/linkage/output/lookups/Unicode/Populations/Estimates/",
                           "DataZone2011_pop_est_2011_2020.rds")
 
+# Edit when new postcode lookup data becomes available (annual)
+postcode_lookup_path <- paste0("/conf/linkage/output/lookups/Unicode/Geography/Scottish Postcode Directory/",
+                               "Scottish_Postcode_Directory_2022_1.csv")
 
 # Run both false if not debugging. 
 # This will save the raw extracts to a cache.
@@ -114,6 +117,7 @@ profile_extract_outputs <- coordinate_profile_extract(start_year_str,
                                                       deaths_start_date,
                                                       deaths_end_date,
                                                       pop_lookup_path,
+                                                      postcode_lookup_path,
                                                       save_cache = save_cache,
                                                       load_from_cache = load_from_cache)
 

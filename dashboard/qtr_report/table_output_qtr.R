@@ -5,7 +5,7 @@
 # sparkline for each row
 #{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
 table_with_sparklines <- function(table_data,
-                                  p_m_colouring = FALSE,
+                                  roc_table = FALSE,
                                   sparkline_type="line",
                                   n_digits = 1){
   
@@ -55,7 +55,7 @@ table_with_sparklines <- function(table_data,
   #all the year end columns that are identical
   for (year_end_col in year_end_group){
     
-    if (p_m_colouring) {
+    if (roc_table) {
       col_defs[[year_end_col]] <- make_roc_column(table_data[year_end_col],
                                                   col_name = year_end_col,
                                                   header_str = "")

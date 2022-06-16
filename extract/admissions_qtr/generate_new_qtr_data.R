@@ -26,9 +26,7 @@ generate_new_qtr_data <- function(date_end,
   
   ## Lookups
   # Euro std pop
-  filename.pop.std = "ESP2013 by sex.csv"
-  filepath.pop.std = "/conf/LIST_analytics/Glasgow City/#lookups/Populations/standard/"
-  filepathname.pop.std = paste0(filepath.pop.std, filename.pop.std)
+  standard_pop_lookup_path <- "/conf/linkage/output/lookups/Unicode/Populations/Standard/ESP2013_by_sex.sav"
   
   
   ################################################################
@@ -303,7 +301,7 @@ generate_new_qtr_data <- function(date_end,
   ### ESP2013 std pop
   
   # read in data
-  pop.std  <- read_csv(filepathname.pop.std, show_col_types = FALSE)
+  pop.std <- haven::read_sav(standard_pop_lookup_path)
   names(pop.std) <- c('age_group','sex','ESP2013pop')
   
   

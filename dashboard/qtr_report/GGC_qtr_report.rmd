@@ -17,7 +17,6 @@ params:
 
 ```{r setup, include=FALSE}
 library(here)
-library(htmltools)
 library(tidyverse)
 library(knitr)
 library(lubridate)
@@ -34,7 +33,7 @@ if ("default" %in% params){
 }
 
 data_dir <- here("output", "admissions_qtr_data", "accumulated", paste0("qtr_alc_adm_GGC_", params$qtr_start, "_to_", params$qtr_end, ".csv"))
-data <- read_csv(data_dir, show_col_types = FALSE) %>% 
+data <- read_csv(data_dir) %>% 
   select(-lookup) %>% 
   mutate(date_end = ymd(date_end),
          area=recode(area, `NHS Greater Glasgow and Clyde`="NHS GGC"))
@@ -232,7 +231,7 @@ row {.tabset}
 ```{r reactable_4}
 change_table_data_2 <- relative_change_table_data(data, "EASR")
 
-table_with_sparklines(change_table_data_2, p_m_colouring = TRUE, sparkline_type="bar")
+table_with_sparklines(change_table_data_2, roc_table = TRUE, sparkline_type="bar")
 ```
 
 ### Number - % change from first year
@@ -240,7 +239,7 @@ table_with_sparklines(change_table_data_2, p_m_colouring = TRUE, sparkline_type=
 ```{r reactable_3}
 change_table_data_1 <- relative_change_table_data(data, "number")
 
-table_with_sparklines(change_table_data_1, p_m_colouring = TRUE, sparkline_type="bar")
+table_with_sparklines(change_table_data_1, roc_table = TRUE, sparkline_type="bar")
 ```
 
 
@@ -251,12 +250,12 @@ row {.tabset}
 
 ```{r reactable_6}
 change_table_data_4 <- year_on_year_change(data, "EASR")
-table_with_sparklines(change_table_data_4, p_m_colouring = TRUE, sparkline_type="bar")
+table_with_sparklines(change_table_data_4, roc_table = TRUE, sparkline_type="bar")
 ```
 
 ### Number - % change year-on-year
 
 ```{r reactable_5}
 change_table_data_3 <- year_on_year_change(data, "number")
-table_with_sparklines(change_table_data_3, p_m_colouring = TRUE, sparkline_type="bar")
+table_with_sparklines(change_table_data_3, roc_table = TRUE, sparkline_type="bar")
 ```
