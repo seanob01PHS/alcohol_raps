@@ -57,12 +57,14 @@ end_year <- 2021
 
 # Population lookup file
 # Edit this when new population data becomes available (annual)
-pop_lookup_path <- paste0("/conf/linkage/output/lookups/Unicode/Populations/Estimates/",
-                          "DataZone2011_pop_est_2011_2020.rds")
+pop_lookup_path <-
+  paste0("/conf/linkage/output/lookups/Unicode/Populations/Estimates/",
+         "DataZone2011_pop_est_2011_2020.rds")
 
 # Edit when new postcode lookup data becomes available (annual)
-postcode_lookup_path <- paste0("/conf/linkage/output/lookups/Unicode/Geography/Scottish Postcode Directory/",
-                               "Scottish_Postcode_Directory_2022_1.csv")
+postcode_lookup_path <-
+  paste0("/conf/linkage/output/lookups/Unicode/Geography/Scottish Postcode Directory/",
+         "Scottish_Postcode_Directory_2022_1.csv")
 
 # Run both false if not debugging. 
 # This will save the raw extracts to a cache.
@@ -122,16 +124,25 @@ profile_extract_outputs <- coordinate_profile_extract(start_year_str,
                                                       load_from_cache = load_from_cache)
 
 profile_extract_outputs[["output"]] %>% 
-  write_csv(here("output", "profile_annual_data", paste0("profile_data_", start_year_str, "_to_", end_year_str, ".csv")))
+  write_csv(here("output", "profile_annual_data",
+                 paste0("profile_data_", start_year_str,
+                        "_to_", end_year_str, ".csv")))
 
 population_year <- profile_extract_outputs[["population_year"]]
 
 # creates (renders) the html output
 message(".... rendering output.")
-outfile <- here("output", "reports", "profile", paste0("GGC_profile_report_", start_year_str, "_to_", end_year_str, ".html"))
+outfile <- here("output", "reports", "profile",
+                paste0("GGC_profile_report_",
+                       start_year_str, "_to_",
+                       end_year_str, ".html"))
+
 rmarkdown::render(here("dashboard", "profile_report", "GGC_profile_report.rmd"),
                   output_file = outfile,
                   params = list(start_year = start_year_str,
                                 end_year = end_year_str,
                                 population_year = population_year),
                   quiet = TRUE)
+
+message(paste0(".... done! saved to: \n",
+               outfile))

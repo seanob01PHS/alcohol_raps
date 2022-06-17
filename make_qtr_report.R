@@ -21,6 +21,7 @@ library(purrr)
 library(janitor)
 library(lubridate)
 library(zoo)
+library(htmltools)
 
 # set proj wd
 setwd("/conf/LIST_analytics/Glasgow City/Drugs & Alcohol/Alcohol/Regular Report RAPs/")
@@ -57,10 +58,17 @@ coordinate_qtr_extract(qtr_start,
 
 #creates the output
 message(".... rendering output.")
+file_output_loc <- here("output", "reports", "qtr",
+                        paste0("GGC_qtr_report_",
+                               qtr_start, "_to_",
+                               qtr_end, ".html"))
+
 rmarkdown::render(here("dashboard", "qtr_report", "GGC_qtr_report.rmd"),
-     output_file = here("output", "reports", "qtr", paste0("GGC_qtr_report_", qtr_start, "_to_", qtr_end, ".html")),
+     output_file = file_output_loc,
      params = list(qtr_start = qtr_start,
                    qtr_end = qtr_end),
      quiet = TRUE
      )
+message(paste0(".... done! saved to: \n",
+               file_output_loc))
 

@@ -6,7 +6,7 @@
 *.[Hh][Tt][Mm][Ll]
 *.[Cc][Ss][Vv]
 *.[Rr][Dd][Ss]
-
+*.[Xx][Ll]*
 
 output/
 !*.gitkeep

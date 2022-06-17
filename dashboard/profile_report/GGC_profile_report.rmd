@@ -55,7 +55,8 @@ if ("default" %in% params){
 
 data <- read_csv(here("output",
                       "profile_annual_data", 
-                      paste0("profile_data_", params$start_year, "_to_", params$end_year, ".csv"))) %>% 
+                      paste0("profile_data_", params$start_year, "_to_", params$end_year, ".csv")),
+                 show_col_types = FALSE) %>% 
    select(-lookup)
 
 # replace hscp with locality 
@@ -206,7 +207,7 @@ The profiles show the **European Age-sex Standardised Rate (EASR) per 10,000 pop
  - **Filter by HSCP** – the click into the HSCP search box at the top of the page and select an HSCP, multiple values can be selected. Use the backspace key to delete any chosen values. Note that selecting ‘(All)’ in the HSCP search box does not function as it should. To return to the default unfiltered view, delete all values shown in the filter box using the backspace key.
  - **Find an IZ** – click into either search box above the two leftmost columns and type to find a particular IZ by code or name.
  - EASR cells are coloured light orange <span class="highlight_colour" style="background-color: #F3DE90">like this</span> to indicate values that are in the 75^th^ percentile or above for all NHS GGC.
- - Once the data is filtered, a red circle \ <span style="color: #B8100D"> `r shiny::icon("circle-o")` </span> \ will show values that are in the 75th percentile or above for the filtered data. If you filter for a specific HSCP this will help identify outliers within that HSCP.
+ - Once the data is filtered, a red circle \ <span style="color: #B8100D"> `r shiny::icon("circle-o", verify_fa = FALSE)` </span> \ will show values that are in the 75th percentile or above for the filtered data. If you filter for a specific HSCP this will help identify outliers within that HSCP.
 
 
 
@@ -247,7 +248,7 @@ Each page copntains  three tabs:
 #### <span style="text-decoration:underline">**EASR**</span>
 
  - EASR cells are coloured light orange <span class="highlight_colour" style="background-color: #F3DE90">like this</span> to indicate values that are in the 75th percentile or above for all NHS GGC 
- - Once the data is filtered, a red circle \ <span style="color: #B8100D"> `r shiny::icon("circle-o")` </span> \ will show values that are in the 75th percentile or above for the filtered data. If you filter for a specific HSCP this will help identify outliers within that HSCP.
+ - Once the data is filtered, a red circle \ <span style="color: #B8100D"> `r shiny::icon("circle-o", verify_fa = FALSE)` </span> \ will show values that are in the 75th percentile or above for the filtered data. If you filter for a specific HSCP this will help identify outliers within that HSCP.
 
 <br/>
 
